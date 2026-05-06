@@ -15,7 +15,14 @@ export function AuthWrapper({ children, className, ...props }: AuthWrapperProps)
       className={cn("relative min-h-screen flex flex-col items-center justify-center overflow-hidden", className)}
       {...props}
     >
-      <Image src="/images/logo.png" alt="E-Letter Logo" width={120} height={120} className="absolute top-12" />
+      <Image
+        src="/images/logo.png"
+        alt="E-Letter Logo"
+        width={120}
+        height={120}
+        loading="eager"
+        className="absolute top-12"
+      />
       <Card className="relative w-full max-w-md mx-4 p-8 shadow-lg bg-white">{children}</Card>
       <Image
         src="/auth.svg"

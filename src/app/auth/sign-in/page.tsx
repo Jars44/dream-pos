@@ -1,16 +1,40 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mail, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { AuthWrapper } from "@/components/auth/auth-wrapper";
+import { useAuth } from "@/lib/auth-context";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const success = await login(email, password);
+
+    if (success) {
+      toast.success("Signed in successfully!");
+      router.push("/dashboard");
+      router.refresh();
+    } else {
+      toast.error("Invalid credentials. Use admin@gmail.com / admin");
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <AuthWrapper>
@@ -19,7 +43,7 @@ export default function SignInPage() {
         <p className="text-slate-500 text-sm">Access the Dreamspos panel using your email and passcode.</p>
       </div>
 
-      <form className="space-y-5">
+      <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email" className="text-slate-800 font-medium">
             Email <span className="text-red-500">*</span>
@@ -28,8 +52,11 @@ export default function SignInPage() {
             <Input
               id="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
               className="pr-10 h-11 bg-slate-50 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+              required
             />
             <Mail className="absolute right-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
           </div>
@@ -40,16 +67,16 @@ export default function SignInPage() {
             <Label htmlFor="password" className="text-slate-800 font-medium">
               Password <span className="text-red-500">*</span>
             </Label>
-            <a href="#" className="text-sm text-orange-500 hover:text-orange-600 font-medium">
-              Forgot Password?
-            </a>
           </div>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="pr-10 h-11 bg-slate-50 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+              required
             />
             <button
               type="button"
@@ -68,21 +95,27 @@ export default function SignInPage() {
             onCheckedChange={(checked) => setRememberMe(checked === true)}
             className="border-slate-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
           />
-          <label htmlFor="remember" className="text-sm text-slate-600 select-none">
-            Remember Me
-          </label>
+          <div className="flex justify-between w-full">
+            <label htmlFor="remember" className="text-sm text-slate-600 cursor-pointer select-none">
+              Remember Me
+            </label>
+            <a href="#" className="text-sm text-orange-500 hover:text-orange-600 font-medium">
+              Forgot Password?
+            </a>
+          </div>
         </div>
 
         <Button
           type="submit"
           className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base transition-all duration-200"
+          disabled={isLoading}
         >
-          Sign In
+          {isLoading ? "Signing in..." : "Sign In"}
         </Button>
 
-        <div className="text-center text-sm text-slate-600">
+        <div className="text-left text-sm text-slate-600">
           New on our platform?{" "}
-          <a href="/auth/register" className="text-orange-500 hover:text-orange-600 font-medium">
+          <a href="/auth/register" className="text-slate-800 hover:text-slate-900 font-medium">
             Create an account
           </a>
         </div>
@@ -98,7 +131,7 @@ export default function SignInPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-none font-medium"
+            className="h-11 bg-[#155EEF] hover:bg-[#155EEF]/90 text-white border-none font-medium"
           >
             <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -135,13 +168,10 @@ export default function SignInPage() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 bg-[#0f172a] hover:bg-[#0f172a]/90 text-white border-none font-medium"
+            className="h-11 bg-[#1B2850] hover:bg-[#1B2850]/90 text-white border-none font-medium"
           >
             <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
-                fill="currentColor"
-              />
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
             </svg>
           </Button>
         </div>
