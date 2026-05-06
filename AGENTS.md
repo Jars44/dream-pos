@@ -37,6 +37,9 @@ You operate purely in the browser/client domain. There is NO backend.
 1. **NO BACKEND CODE:** If a page requires data (e.g., a list of products, user profile, transaction history), you MUST generate structured JSON Mock Data in a separate file (e.g., `src/lib/mock-data.ts`) and import it. Do not write API fetch calls to non-existent endpoints.
 2. **Shadcn CLI First:** When a layout requires a dropdown, dialog, table, or toast, ALWAYS use the shadcn CLI via Bun to install it first before composing the page.
 3. **Client Components:** Add `"use client";` at the very top of the file when using React hooks (useState, useEffect), handling onClick events, or utilizing Framer Motion.
+4. **Design Tokens:** hardcode design tokens (colors, fonts). Use the Tailwind theme configuration.
+5. **Comment:** comment out code. If a change is needed, simply edit the code directly without leaving commented-out blocks.
+6. **Best Practice:** generate code that violates accessibility best practices (e.g., missing alt text, insufficient color contrast, non-semantic HTML).
 </operational_constraints>
 
 <execution_protocol>
