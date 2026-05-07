@@ -34,11 +34,11 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-16 items-center gap-3 border-b px-6">
-          <Image src="/images/logo.png" alt="Logo" width={120} height={40} />
+          <Image src="/images/logo.png" alt="Logo" width={120} height={40} loading="lazy" />
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-[-20] h-9 w-9 rounded-full bg-orange-500 text-white hover:bg-orange-600"
+            className="absolute right-[-20] h-9 w-9 rounded-full bg-orange-500 text-white hover:bg-orange-600 hidden md:inline-flex"
             onClick={() => {}}
           >
             <ChevronsLeft className="size-5 hover:text-white" />
@@ -49,9 +49,7 @@ export function Sidebar() {
           <nav className="px-3 space-y-6">
             {sidebarData.map((category) => (
               <div key={category.title}>
-                <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-black">
-                  {category.title}
-                </h3>
+                <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-black">{category.title}</h3>
                 <ul className="space-y-1">
                   {category.items.map((item) => {
                     const Icon = item.icon;
