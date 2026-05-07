@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { AuthProvider } from "@/lib/auth-context";
-import { Toaster } from "@/components/ui/sonner";
 
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
@@ -23,12 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("h-full", "antialiased", nunitoSans.variable, "font-sans")}>
-      <body className="min-h-full flex flex-col bg-white">
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
-      </body>
+      <body className="min-h-full flex flex-col bg-white">{children}</body>
     </html>
   );
 }

@@ -5,6 +5,7 @@
     "": {
       "name": "dream-pos",
       "dependencies": {
+        "@radix-ui/react-scroll-area": "^1.2.10",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",

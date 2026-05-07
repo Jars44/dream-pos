@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { AuthWrapper } from "@/components/auth/auth-wrapper";
-import { useAuth } from "@/lib/auth-context";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,20 +17,14 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const success = await login(email, password);
-
-    if (success) {
-      toast.success("Signed in successfully!");
-      router.push("/dashboard");
-      router.refresh();
-    } else {
-      toast.error("Invalid credentials. Use admin@gmail.com / admin");
-    }
+    toast.success("Signed in successfully!");
+    router.push("/dashboard");
+    router.refresh();
 
     setIsLoading(false);
   };
@@ -40,7 +33,9 @@ export default function SignInPage() {
     <AuthWrapper>
       <div className="text-left mb-4">
         <h1 className="text-3xl font-bold text-slate-800 mb-2">Sign In</h1>
-        <p className="text-slate-500 text-sm">Access the Dreamspos panel using your email and passcode.</p>
+        <p className="text-slate-500 text-sm">
+          Access the Dreamspos panel using your email and passcode.
+        </p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
