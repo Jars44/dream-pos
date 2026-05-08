@@ -33,12 +33,12 @@ export function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 items-center gap-3 border-b px-6">
+        <div className="flex h-20 items-center gap-3 border-b px-6">
           <Image src="/images/logo.png" alt="Logo" width={120} height={40} loading="lazy" />
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-[-20] h-9 w-9 rounded-full bg-orange-500 text-white hover:bg-orange-600 hidden md:inline-flex"
+            className="absolute right-[-20] h-9 w-9 rounded-full bg-primary text-white hover:text-white hover:bg-[#FF8D29] hidden md:inline-flex"
             onClick={() => {}}
           >
             <ChevronsLeft className="size-5 hover:text-white" />
@@ -61,18 +61,18 @@ export function Sidebar() {
                           className={cn(
                             "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                             isActive
-                              ? "bg-orange-50 text-orange-500 font-semibold"
+                              ? "bg-orange-50 text-primary font-semibold"
                               : "text-slate-700 hover:bg-slate-50 hover:text-slate-800",
                           )}
                           onClick={() => setIsOpen(false)}
                         >
                           <Icon className="size-5" />
                           <span className="flex-1">{item.title}</span>
-                          {isActive && (
+                          {/* {isActive && (
                             <div className="flex items-center justify-center rounded-full w-6 h-6 bg-orange-100">
                               <ChevronDown className="size-4" />
                             </div>
-                          )}
+                          )} */}
                         </Link>
                       </li>
                     );

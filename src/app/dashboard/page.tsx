@@ -21,9 +21,9 @@ export default function DashboardHomePage() {
       value: "$48,988,078",
       change: "+22%",
       isPositive: true,
-      bgColor: "bg-[#FE9F43]",
+      bgColor: "bg-primary",
       icon: FileText,
-      iconColor: "text-[#FE9F43]",
+      iconColor: "text-primary",
     },
     {
       title: "Total Sales Return",
@@ -96,7 +96,7 @@ export default function DashboardHomePage() {
 
       <Alert className="border-orange-200 bg-orange-50 text-orange-600">
         <div className="flex items-center gap-3 flex-1">
-          <Info className="size-5 text-orange-500 flex-shrink-0" />
+          <Info className="size-5 text-orange-500 shrink-0" />
           <AlertDescription className="flex-1 text-slate-600">
             Your Product <span className="text-orange-500 font-bold">Apple Iphone 15 is running Low, </span>already
             below 5 Pcs.. <span className="text-orange-500 font-bold underline cursor-pointer">Add Stock</span>

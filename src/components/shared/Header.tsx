@@ -7,13 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Plus, Monitor, Globe, Maximize2, Mail, Bell, Settings } from "lucide-react";
+import { Search, Mail, Bell, Settings, ChevronDown, LaptopMinimal, CirclePlus, Maximize } from "lucide-react";
 import Image from "next/image";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-4 sm:px-6">
-      <div className="relative flex-1 max-w-md">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-white px-4 sm:px-6">
+      <div className="relative flex-1 max-w-2xs">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
         <Input placeholder="Search..." className="pl-9 pr-16" />
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
@@ -24,9 +24,16 @@ export function Header() {
       <div className="flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 text-slate-700">
-              <Globe className="size-4" />
+            <Button variant="ghost" className="flex items-center gap-2 border-slate-200 text-slate-700">
+              <Image
+                src="/images/icons/freshmart.webp"
+                alt="Logo"
+                height={20}
+                width={20}
+                className="object-cover w-4 h-4 rounded-xs"
+              />
               Freshmart
+              <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -35,41 +42,43 @@ export function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button className="bg-[#FE9F43] hover:bg-[#FF8D29] text-white">
-          <Plus className="size-4 mr-1" />
+        <Button className="hover:bg-[#FF8D29] text-white">
+          <CirclePlus className="size-4 mr-1" />
           Add New
         </Button>
 
-        <Button className="bg-[#092C4C] hover:bg-slate-800 text-white">
-          <Monitor className="size-4 mr-1" />
+        <Button className="bg-[#092C4C] hover:bg-[#002749] text-white">
+          <LaptopMinimal className="size-4 mr-1" />
           POS
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative">
-          <Image src="/placeholder.svg" alt="US" height={5} width={5} className="size-5 rounded-sm object-cover" />
+        <div className="h-8 w-px bg-slate-200"></div>
+
+        <Button size="icon" className="relative bg-slate-100 hover:bg-slate-200">
+          <Image src="/images/usa.webp" alt="US" height={5} width={5} className="size-5 rounded-sm object-cover" />
         </Button>
 
-        <Button variant="ghost" size="icon">
-          <Maximize2 className="size-4" />
+        <Button size="icon" className="bg-slate-100 hover:bg-slate-200 text-slate-700">
+          <Maximize className="size-4" />
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative">
+        <Button size="icon" className="relative bg-slate-100 hover:bg-slate-200 text-slate-700">
           <Mail className="size-4" />
           <span className="absolute -top-1 -right-1 flex items-center justify-center size-4 text-[10px] font-semibold text-white bg-red-500 rounded-full">
             01
           </span>
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative">
+        <Button size="icon" className="relative bg-slate-100 hover:bg-slate-200 text-slate-700">
           <Bell className="size-4" />
         </Button>
 
-        <Button variant="ghost" size="icon">
+        <Button size="icon" className="bg-slate-100 hover:bg-slate-200 text-slate-700">
           <Settings className="size-4" />
         </Button>
 
-        <Avatar className="size-9 border-2 border-orange-100">
-          <AvatarImage src="/images/avatar.png" alt="Admin" loading="lazy" />
+        <Avatar className="size-9 border-2 border-orange-100 text-slate-700">
+          <AvatarImage src="/images/avatar.webp" alt="Admin" loading="lazy" />
           <AvatarFallback className="bg-orange-100 text-orange-600 font-semibold">AD</AvatarFallback>
         </Avatar>
       </div>

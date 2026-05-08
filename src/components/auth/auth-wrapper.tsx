@@ -16,7 +16,7 @@ export function AuthWrapper({ children, className, ...props }: AuthWrapperProps)
       {...props}
     >
       <Image
-        src="/images/logo.png"
+        src="/images/logo.webp"
         alt="E-Letter Logo"
         width={120}
         height={120}
