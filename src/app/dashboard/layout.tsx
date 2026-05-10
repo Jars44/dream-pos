@@ -1,8 +1,9 @@
 "use client";
 
 import { Sidebar } from "@/components/shared/Sidebar";
-import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/shared/Header";
+import { Footer } from "@/components/shared/Footer";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,12 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Header />
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </div>
-        <footer className="bg-white border py-4 px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-s text-black">
-            <p>2014-2025 © DreamsPOS. All Right Reserved</p>
-            <p className="text-slate-500">Designed & Developed By <span className="text-primary">Dreams</span></p>
-          </div>
-        </footer>
+        <Footer />
       </main>
       <Toaster />
     </div>
