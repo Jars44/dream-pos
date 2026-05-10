@@ -57,9 +57,9 @@ const subCategoriesData = [
 const getCategoryImage = (name: string): string => {
   const imageMap: Record<string, string> = {
     Laptop: "/images/products/pt001.webp",
-    Desktop: "/images/products/pt002.webp",
+    Desktop: "/images/products/pt011.webp",
     Sneakers: "/images/products/pt003.webp",
-    Formals: "/images/products/pt004.webp",
+    Formals: "/images/products/pt012.webp",
     Wearables: "/images/products/pt005.webp",
     Speakers: "/images/products/pt006.webp",
     Handbags: "/images/products/pt007.webp",

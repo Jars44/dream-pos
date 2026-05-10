@@ -42,16 +42,16 @@ const brandsData = [
 
 const getBrandImage = (name: string): string => {
   const imageMap: Record<string, string> = {
-    Lenovo: "/images/products/pt001.webp",
-    Beats: "/images/products/pt002.webp",
-    Nike: "/images/products/pt003.webp",
-    Apple: "/images/products/pt004.webp",
-    Amazon: "/images/products/pt005.webp",
-    Woodmart: "/images/products/pt006.webp",
-    Dior: "/images/products/pt007.webp",
-    Lava: "/images/products/pt008.webp",
-    Nilkamal: "/images/products/pt009.webp",
-    "The North Face": "/images/products/pt010.webp",
+    Lenovo: "/images/brands/lenovo.webp",
+    Beats: "/images/brands/beats.webp",
+    Nike: "/images/brands/nike.webp",
+    Apple: "/images/brands/apple.webp",
+    Amazon: "/images/brands/amazon.webp",
+    Woodmart: "/images/brands/woodmart.webp",
+    Dior: "/images/brands/dior.webp",
+    Lava: "/images/brands/lava.webp",
+    Nilkamal: "/images/brands/nilkamal.webp",
+    "The North Face": "/images/brands/the-north-face.webp",
   };
   return imageMap[name] || "/placeholder.svg";
 };
