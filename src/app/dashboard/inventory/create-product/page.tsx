@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import {
-  CircleHelp,
-  ChevronDown,
+  Info,
+  CircleChevronDown,
   RefreshCw,
   ChevronUp,
   ArrowLeft,
@@ -15,13 +15,14 @@ import {
   Underline,
   Link as LinkIcon,
   Quote,
-  Code,
+  CodeXml,
   Paperclip,
   Smile,
   Trash2,
   Send,
-  Plus,
-  Calendar,
+  PlusCircle,
+  Strikethrough,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +42,6 @@ import {
 export default function CreateProductPage() {
   return (
     <div className="flex flex-col h-full bg-slate-50/50">
-      {/* Page Header & Actions */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-black">Create Product</h1>
@@ -79,10 +79,10 @@ export default function CreateProductPage() {
         <CardHeader className="border-b pb-4 mb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CircleHelp className="size-5 text-primary" />
+              <Info className="size-5 text-primary" />
               <CardTitle className="text-lg font-bold text-black">Product Information</CardTitle>
             </div>
-            <ChevronDown className="size-5 text-slate-400" />
+            <CircleChevronDown className="size-5 text-black" />
           </div>
         </CardHeader>
         <CardContent>
@@ -166,7 +166,7 @@ export default function CreateProductPage() {
               <label className="text-sm font-medium text-black">
                 Category <span className="text-red-500">*</span>
                 <Button size="sm" variant="ghost" className="float-right text-primary text-xs h-auto p-0">
-                  + Add New
+                  <PlusCircle className="size-4" /> Add New
                 </Button>
               </label>
               <Select>
@@ -261,9 +261,7 @@ export default function CreateProductPage() {
             </div>
 
             <div className="col-span-2 space-y-2">
-              <label className="text-sm font-medium text-black">
-                Description <span className="text-red-500">*</span>
-              </label>
+              <label className="text-sm font-medium text-black">Description</label>
               <div className="border border-slate-200 rounded-lg bg-white">
                 <div className="flex items-center gap-1 p-2 border-b border-slate-200">
                   <Button size="icon" variant="ghost" className="size-8">
@@ -275,7 +273,9 @@ export default function CreateProductPage() {
                   <Button size="icon" variant="ghost" className="size-8">
                     <Underline className="size-4" />
                   </Button>
-                  <div className="w-px h-4 bg-slate-300 mx-1" />
+                  <Button size="icon" variant="ghost" className="size-8">
+                    <Strikethrough className="size-4" />
+                  </Button>
                   <Button size="icon" variant="ghost" className="size-8">
                     <LinkIcon className="size-4" />
                   </Button>
@@ -286,7 +286,7 @@ export default function CreateProductPage() {
                     <Quote className="size-4" />
                   </Button>
                   <Button size="icon" variant="ghost" className="size-8">
-                    <Code className="size-4" />
+                    <CodeXml className="size-4" />
                   </Button>
                 </div>
 
@@ -295,7 +295,7 @@ export default function CreateProductPage() {
                   className="w-full p-3 min-h-32 resize-none focus:outline-none"
                 />
 
-                <div className="flex items-center justify-between p-2 border-t border-slate-200">
+                <div className="flex items-center justify-between p-2">
                   <div className="flex items-center gap-1">
                     <Button size="icon" variant="ghost" className="size-8">
                       <Paperclip className="size-4" />
@@ -303,16 +303,22 @@ export default function CreateProductPage() {
                     <Button size="icon" variant="ghost" className="size-8">
                       <Smile className="size-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="size-8 text-red-500">
+                    <Button size="icon" variant="ghost" className="size-8">
                       <Trash2 className="size-4" />
                     </Button>
                   </div>
-                  <Button size="icon" className="size-8 bg-primary hover:bg-[#FF8D29] text-white">
-                    <Send className="size-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" className="size-8">
+                      <Send className="size-4" />
+                    </Button>
+                    <div className="w-px bg-slate-200"></div>
+                    <Button size="icon" variant="ghost" className="size-8">
+                      <ChevronDown className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs text-slate-400">Maximum 60 Words</p>
+              <p className="text-md text-slate-500">Maximum 60 Words</p>
             </div>
           </div>
         </CardContent>
@@ -325,19 +331,20 @@ export default function CreateProductPage() {
               <CircleDollarSign className="size-5 text-primary" />
               <CardTitle className="text-lg font-bold text-black">Pricing & Stocks</CardTitle>
             </div>
-            <ChevronDown className="size-5 text-slate-400" />
+            <CircleChevronDown className="size-5 text-black" />
           </div>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <label className="text-sm font-medium text-black mb-3 block">Product Type</label>
+            <label className="text-sm font-medium text-black mb-3 block">
+              Product Type <span className="text-red-500">*</span>
+            </label>
             <RadioGroup defaultValue="single" className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="single" id="single" />
                 <label htmlFor="single" className="text-sm text-black">
                   Single Product
                 </label>
-                <div className="size-2 rounded-full bg-primary" />
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="variable" id="variable" />
@@ -368,7 +375,7 @@ export default function CreateProductPage() {
                 Tax Type <span className="text-red-500">*</span>
               </label>
               <Select>
-                <SelectTrigger className="bg-white border-slate-200">
+                <SelectTrigger className="bg-white border-slate-200 w-full">
                   <SelectValue placeholder="Select tax type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -384,7 +391,7 @@ export default function CreateProductPage() {
                 Discount Type <span className="text-red-500">*</span>
               </label>
               <Select>
-                <SelectTrigger className="bg-white border-slate-200">
+                <SelectTrigger className="bg-white border-slate-200 w-full">
                   <SelectValue placeholder="Select discount type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -394,7 +401,6 @@ export default function CreateProductPage() {
               </Select>
             </div>
 
-            {/* Discount Value */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-black">
                 Discount Value <span className="text-red-500">*</span>
@@ -419,15 +425,13 @@ export default function CreateProductPage() {
               <ImageIcon className="size-5 text-primary" />
               <CardTitle className="text-lg font-bold text-black">Images</CardTitle>
             </div>
-            <ChevronDown className="size-5 text-slate-400" />
+            <CircleChevronDown className="size-5 text-black" />
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-slate-200 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
-            <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center mb-2">
-              <Plus className="size-6 text-slate-400" />
-            </div>
-            <p className="text-sm text-slate-400">Add Image</p>
+          <div className="w-40 h-40 border-2 border-dashed border-slate-200 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+            <PlusCircle className="size-4 text-slate-400" />
+            <p className="text-sm text-slate-400 pt-2">Add Image</p>
           </div>
         </CardContent>
       </Card>
@@ -439,11 +443,11 @@ export default function CreateProductPage() {
               <List className="size-5 text-primary" />
               <CardTitle className="text-lg font-bold text-black">Custom Fields</CardTitle>
             </div>
-            <ChevronDown className="size-5 text-slate-400" />
+            <CircleChevronDown className="size-5 text-black" />
           </div>
         </CardHeader>
         <CardContent>
-          <div className="bg-slate-50 p-4 rounded-lg mb-4">
+          <div className="bg-zinc-100 p-4 rounded-lg mb-4">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Checkbox id="warranty" defaultChecked />
@@ -495,10 +499,7 @@ export default function CreateProductPage() {
                 Manufactured Date <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Input type="date" className="bg-white border-slate-200 pr-10" />
-                <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-full size-10">
-                  <Calendar className="size-4" />
-                </Button>
+                <Input type="date" placeholder="dd/mm/yyyy" className="bg-white border-slate-200" />
               </div>
             </div>
 
@@ -507,10 +508,7 @@ export default function CreateProductPage() {
                 Expiry On <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Input type="date" className="bg-white border-slate-200 pr-10" />
-                <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-full size-10">
-                  <Calendar className="size-4" />
-                </Button>
+                <Input type="date" className="bg-white border-slate-200" />
               </div>
             </div>
           </div>
@@ -521,7 +519,7 @@ export default function CreateProductPage() {
         <Button asChild className="bg-[#092C4C] hover:bg-slate-800 text-white px-6">
           <Link href="/dashboard/inventory/products">Cancel</Link>
         </Button>
-        <Button className="bg-primary hover:bg-[#FF8D29] text-white px-6">Add Product</Button>
+        <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white px-6">Add Product</Button>
       </div>
     </div>
   );

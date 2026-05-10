@@ -91,7 +91,7 @@ export default function VariantAttributesPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white">
+          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
             <CirclePlus className="size-4 mr-1" />
             Add Variant
           </Button>
@@ -117,12 +117,13 @@ export default function VariantAttributesPage() {
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
                 <Checkbox
                   checked={selectedVariants.length === variantAttributesData.length}
                   onCheckedChange={handleSelectAll}
+                  className="bg-white"
                 />
               </TableHead>
               <TableHead className="font-semibold">Variant</TableHead>
@@ -152,8 +153,8 @@ export default function VariantAttributesPage() {
                 <TableCell>{variant.values}</TableCell>
                 <TableCell>{variant.createdDate}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm text-emerald-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                     Active
                   </span>
                 </TableCell>

@@ -107,7 +107,7 @@ export default function BrandsPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white">
+          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
             <CirclePlus className="size-4 mr-1" />
             Add Brand
           </Button>
@@ -133,10 +133,14 @@ export default function BrandsPage() {
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
-                <Checkbox checked={selectedBrands.length === brandsData.length} onCheckedChange={handleSelectAll} />
+                <Checkbox
+                  checked={selectedBrands.length === brandsData.length}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white"
+                />
               </TableHead>
               <TableHead className="font-semibold">Brand</TableHead>
               <TableHead className="font-semibold">Image</TableHead>
@@ -163,7 +167,7 @@ export default function BrandsPage() {
                 </TableCell>
                 <TableCell className="font-medium text-black">{brand.name}</TableCell>
                 <TableCell>
-                  <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                  <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
                     <Image
                       src={getBrandImage(brand.name)}
                       alt={brand.name}
@@ -179,8 +183,8 @@ export default function BrandsPage() {
                 </TableCell>
                 <TableCell>{brand.createdDate}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm text-emerald-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                     Active
                   </span>
                 </TableCell>

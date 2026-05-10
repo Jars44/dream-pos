@@ -46,52 +46,53 @@ export default function PrintBarcodePage() {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-white p-6 shadow-sm">
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-black">
-              Warehouse <span className="text-red-500">*</span>
-            </label>
-            <Select>
-              <SelectTrigger className="bg-white border-slate-200 w-full">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="main">Main Warehouse</SelectItem>
-                <SelectItem value="secondary">Secondary Warehouse</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="border rounded-lg bg-white p-6">
+        <div>
+          <div className="flex w-1/2 gap-6 mb-6">
+            <div className="space-y-2 w-full">
+              <label className="text-sm font-medium text-black">
+                Warehouse <span className="text-red-500">*</span>
+              </label>
+              <Select>
+                <SelectTrigger className="bg-white border-slate-200 w-full">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="main">Main Warehouse</SelectItem>
+                  <SelectItem value="secondary">Secondary Warehouse</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-black">
-              Store <span className="text-red-500">*</span>
+            <div className="space-y-2 w-full">
+              <label className="text-sm font-medium text-black">
+                Store <span className="text-red-500">*</span>
+              </label>
+              <Select>
+                <SelectTrigger className="bg-white border-slate-200 w-full">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="main">Main Store</SelectItem>
+                  <SelectItem value="branch">Branch Store</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="w-1/2 mb-6">
+            <label className="text-sm font-medium text-black mb-2 block">
+              Product <span className="text-red-500">*</span>
             </label>
-            <Select>
-              <SelectTrigger className="bg-white border-slate-200 w-full">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="main">Main Store</SelectItem>
-                <SelectItem value="branch">Branch Store</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-black" />
+              <Input placeholder="Search Product by Code" className="pl-9 bg-white border-slate-200" />
+            </div>
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="text-sm font-medium text-black mb-2 block">
-            Product <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search Product by Code" className="pl-9 bg-white border-slate-200" />
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <Table className="border">
-            <TableHeader className="bg-slate-50">
+        <div className="bg-slate-50 p-8 mb-6 rounded-md">
+          <Table>
+            <TableHeader className="bg-zinc-200/40">
               <TableRow>
                 <TableHead>Product</TableHead>
                 <TableHead>SKU</TableHead>
@@ -99,7 +100,7 @@ export default function PrintBarcodePage() {
                 <TableHead>Qty</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white hover:bg-white">
               <TableRow>
                 <TableCell colSpan={4}>
                   <div className="flex flex-col items-center justify-center py-12 gap-3">
@@ -113,12 +114,12 @@ export default function PrintBarcodePage() {
         </div>
 
         <div className="flex items-center justify-between mb-6">
-          <div className="w-1/3">
+          <div className="w-full mr-8">
             <label className="text-sm font-medium text-black mb-2 block">
               Paper Size <span className="text-red-500">*</span>
             </label>
             <Select>
-              <SelectTrigger className="bg-white border-slate-200">
+              <SelectTrigger className="bg-white border-slate-200 w-full">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -129,7 +130,7 @@ export default function PrintBarcodePage() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center justify-between w-full">
             <div className="flex flex-col items-start gap-2">
               <label className="text-sm font-medium text-black">Show Store Name</label>
               <Switch defaultChecked className="data-[state=checked]:bg-emerald-500" />
@@ -146,7 +147,7 @@ export default function PrintBarcodePage() {
         </div>
 
         <div className="flex justify-end gap-4 mt-8">
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white px-6">
+          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white px-6">
             <Eye className="size-4 mr-2" />
             Generate Barcode
           </Button>

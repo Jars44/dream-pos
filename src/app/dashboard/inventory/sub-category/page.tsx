@@ -121,7 +121,7 @@ export default function SubCategoryPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white">
+          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
             <CirclePlus className="size-4 mr-1" />
             Add Sub Category
           </Button>
@@ -165,6 +165,7 @@ export default function SubCategoryPage() {
                 <Checkbox
                   checked={selectedSubCategories.length === subCategoriesData.length}
                   onCheckedChange={handleSelectAll}
+                  className="bg-white"
                 />
               </TableHead>
               <TableHead className="font-semibold">Image</TableHead>
@@ -193,7 +194,7 @@ export default function SubCategoryPage() {
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                  <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
                     <Image
                       src={getCategoryImage(subCategory.name)}
                       alt={subCategory.name}
@@ -212,8 +213,8 @@ export default function SubCategoryPage() {
                 <TableCell>{subCategory.code}</TableCell>
                 <TableCell>{subCategory.description}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm text-emerald-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                     Active
                   </span>
                 </TableCell>

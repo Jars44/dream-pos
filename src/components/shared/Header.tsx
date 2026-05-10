@@ -13,10 +13,10 @@ import Image from "next/image";
 export function Header() {
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-white px-4 sm:px-6">
-      <div className="relative flex-1 max-w-2xs">
+      <div className="relative ml-2 flex-1 max-w-2xs">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
         <Input placeholder="Search..." className="pl-9 pr-16" />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-black bg-zinc-2va00 px-1.5 py-0.5 rounded flex justify-center items-center w-10 h-6">
           ⌘ K
         </span>
       </div>
@@ -31,6 +31,7 @@ export function Header() {
                 height={20}
                 width={20}
                 className="object-cover w-4 h-4 rounded-xs"
+                loading="lazy"
               />
               Freshmart
               <ChevronDown />

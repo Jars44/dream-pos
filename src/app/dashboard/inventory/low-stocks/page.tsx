@@ -1,22 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Eye,
-  Edit,
-  Trash2,
-  Search,
-  ArrowDownUp,
-  Filter,
-  Download,
-  CirclePlus,
-  Printer,
-} from "lucide-react";
+import Link from "next/link";
+import { Edit, Trash2, Search, ArrowDownUp, RefreshCw, ChevronUp, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Pagination,
   PaginationContent,
@@ -26,18 +19,106 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const productsData = [
-  { sku: "PT001", name: "Lenovo IdeaPad 3", category: "Computers", brand: "Lenovo", qty: 5, qtyAlert: 10 },
-  { sku: "PT002", name: "Beats Pro", category: "Electronics", brand: "Beats", qty: 3, qtyAlert: 15 },
-  { sku: "PT003", name: "Nike Jordan", category: "Shoe", brand: "Nike", qty: 8, qtyAlert: 20 },
-  { sku: "PT004", name: "Apple Series 5 Watch", category: "Electronics", brand: "Apple", qty: 2, qtyAlert: 10 },
-  { sku: "PT005", name: "Amazon Echo Dot", category: "Electronics", brand: "Amazon", qty: 0, qtyAlert: 5 },
-  { sku: "PT006", name: "Sanford Chair Sofa", category: "Furniture", brand: "IKEA", qty: 1, qtyAlert: 3 },
-  { sku: "PT007", name: "Red Premium Satchel", category: "Bags", brand: "Gucci", qty: 4, qtyAlert: 12 },
-  { sku: "PT008", name: "Iphone 14 Pro", category: "Electronics", brand: "Apple", qty: 7, qtyAlert: 25 },
-  { sku: "PT009", name: "Gaming Chair", category: "Furniture", brand: "Razer", qty: 6, qtyAlert: 18 },
-  { sku: "PT010", name: "Borealis Backpack", category: "Bags", brand: "North Face", qty: 9, qtyAlert: 20 },
+  {
+    sku: "PT001",
+    name: "Lenovo IdeaPad 3",
+    category: "Computers",
+    warehouse: "Lavish Warehouse",
+    store: "Electro Mart",
+    qty: 20,
+    qtyAlert: 15,
+  },
+  {
+    sku: "PT002",
+    name: "Beats Pro",
+    category: "Electronics",
+    warehouse: "Quaint Warehouse",
+    store: "Quantum Gadgets",
+    qty: 25,
+    qtyAlert: 20,
+  },
+  {
+    sku: "PT003",
+    name: "Nike Jordan",
+    category: "Shoe",
+    warehouse: "Traditional Warehouse",
+    store: "Prime Bazaar",
+    qty: 40,
+    qtyAlert: 35,
+  },
+  {
+    sku: "PT004",
+    name: "Apple Series 5 Watch",
+    category: "Electronics",
+    warehouse: "Cool Warehouse",
+    store: "Gadget World",
+    qty: 50,
+    qtyAlert: 45,
+  },
+  {
+    sku: "PT005",
+    name: "Amazon Echo Dot",
+    category: "Electronics",
+    warehouse: "Overflow Warehouse",
+    store: "Volt Vault",
+    qty: 30,
+    qtyAlert: 25,
+  },
+  {
+    sku: "PT006",
+    name: "Sanford Chair Sofa",
+    category: "Furniture",
+    warehouse: "Nova Storage Hub",
+    store: "Elite Retail",
+    qty: 10,
+    qtyAlert: 8,
+  },
+  {
+    sku: "PT007",
+    name: "Red Premium Satchel",
+    category: "Bags",
+    warehouse: "Retail Supply Hub",
+    store: "Prime Mart",
+    qty: 70,
+    qtyAlert: 60,
+  },
+  {
+    sku: "PT008",
+    name: "Iphone 14 Pro",
+    category: "Phone",
+    warehouse: "EdgeWare Solutions",
+    store: "NeoTech Store",
+    qty: 35,
+    qtyAlert: 30,
+  },
+  {
+    sku: "PT009",
+    name: "Gaming Chair",
+    category: "Furniture",
+    warehouse: "North Zone Warehouse",
+    store: "Urban Mart",
+    qty: 15,
+    qtyAlert: 10,
+  },
+  {
+    sku: "PT010",
+    name: "Borealis Backpack",
+    category: "Bags",
+    warehouse: "Fulfillment Hub",
+    store: "Travel Mart",
+    qty: 45,
+    qtyAlert: 40,
+  },
 ];
 
 const getProductImage = (sku: string): string => {
@@ -58,6 +139,7 @@ const getProductImage = (sku: string): string => {
 
 export default function LowStocksPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [notifyEnabled, setNotifyEnabled] = useState(true);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -80,20 +162,52 @@ export default function LowStocksPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Low Stocks</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage your Low Stocks</p>
+          <Breadcrumb className="mt-1">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Low Stocks</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="icon" className="border-slate-300 text-red-500 bg-white hover:bg-slate-50">
+            <Image src="/images/icons/pdf.webp" alt="pdf" width={16} height={16} loading="lazy" />
+          </Button>
+          <Button size="icon" className="border-slate-300 text-green-500 bg-white hover:bg-slate-50">
+            <Image src="/images/icons/xls.webp" alt="xls" width={16} height={16} loading="lazy" />
+          </Button>
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
-            <Filter className="size-4" />
+            <RefreshCw className="size-4" />
+          </Button>
+          <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
+            <ChevronUp className="size-4" />
           </Button>
           <Button className="bg-[#092C4C] hover:bg-slate-800 text-white">
-            <Download className="size-4 mr-1" />
-            Import
+            <Mail className="size-4 mr-1" />
+            Send Email
           </Button>
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white">
-            <CirclePlus className="size-4 mr-1" />
-            Add New
-          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4 rounded-lg border-slate-200 overflow-hidden">
+          <Button className="bg-[#FE9F43] hover:bg-[#FF8D29] text-white rounded-l-md border">Low Stocks</Button>
+          Out of Stock
+        </div>
+        <div className="flex items-center justify-center gap-2 bg-white w-24 h-8 rounded-md border">
+          <Switch
+            checked={notifyEnabled}
+            onCheckedChange={setNotifyEnabled}
+            className="bg-emerald-500 data-checked:bg-emerald-500"
+          />
+          <span className="text-sm text-black">Notify</span>
         </div>
       </div>
 
@@ -104,40 +218,71 @@ export default function LowStocksPage() {
             <Input placeholder="Search" className="pl-9" />
           </div>
           <div className="flex items-center gap-2">
-            <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-red-500">
-              <Printer className="size-4" />
-            </Button>
-            <Button size="icon" className="border-slate-300 text-green-500 bg-white hover:bg-slate-50">
-              <Image src="/images/icons/xls.webp" alt="xls" width={16} height={16} loading="lazy" />
-            </Button>
-            <Button size="icon" className="border-slate-300 text-red-500 bg-white hover:bg-slate-50">
-              <Image src="/images/icons/pdf.webp" alt="pdf" width={16} height={16} loading="lazy" />
-            </Button>
+            <Select>
+              <SelectTrigger className="w-40 text-black">
+                <SelectValue placeholder="Warehouse" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lavish">Lavish Warehouse</SelectItem>
+                <SelectItem value="quaint">Quaint Warehouse</SelectItem>
+                <SelectItem value="traditional">Traditional Warehouse</SelectItem>
+                <SelectItem value="cool">Cool Warehouse</SelectItem>
+                <SelectItem value="overflow">Overflow Warehouse</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select>
+              <SelectTrigger className="w-40 text-black">
+                <SelectValue placeholder="Store" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="electro">Electro Mart</SelectItem>
+                <SelectItem value="quantum">Quantum Gadgets</SelectItem>
+                <SelectItem value="prime">Prime Bazaar</SelectItem>
+                <SelectItem value="gadget">Gadget World</SelectItem>
+                <SelectItem value="volt">Volt Vault</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select>
+              <SelectTrigger className="w-40 text-black">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="computers">Computers</SelectItem>
+                <SelectItem value="electronics">Electronics</SelectItem>
+                <SelectItem value="shoe">Shoe</SelectItem>
+                <SelectItem value="furniture">Furniture</SelectItem>
+                <SelectItem value="bags">Bags</SelectItem>
+                <SelectItem value="phone">Phone</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
-                <Checkbox checked={selectedProducts.length === productsData.length} onCheckedChange={handleSelectAll} />
+                <Checkbox
+                  checked={selectedProducts.length === productsData.length}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white"
+                />
               </TableHead>
+              <TableHead className="font-semibold">Warehouse</TableHead>
+              <TableHead className="font-semibold">Store</TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
-                  Product Name
-                  <div className="flex flex-col">
-                    <ArrowDownUp className="size-3" />
-                  </div>
-                </div>
+                <div className="flex items-center gap-1">Product Name</div>
               </TableHead>
-              <TableHead className="font-semibold">SKU</TableHead>
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">
                 <div className="flex items-center gap-1">
-                  Qty
+                  SKU
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
                   </div>
                 </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-1">Qty</div>
               </TableHead>
               <TableHead className="font-semibold">Qty Alert</TableHead>
               <TableHead className="w-24"></TableHead>
@@ -152,9 +297,11 @@ export default function LowStocksPage() {
                     onCheckedChange={(checked) => handleSelectProduct(product.sku, !!checked)}
                   />
                 </TableCell>
+                <TableCell>{product.warehouse}</TableCell>
+                <TableCell>{product.store}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
                       <Image
                         src={getProductImage(product.sku)}
                         alt={product.name}
@@ -170,15 +317,12 @@ export default function LowStocksPage() {
                     <span className="text-black">{product.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">{product.sku}</TableCell>
                 <TableCell>{product.category}</TableCell>
+                <TableCell className="font-medium">{product.sku}</TableCell>
                 <TableCell>{product.qty}</TableCell>
                 <TableCell>{product.qtyAlert}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Eye className="size-4" />
-                    </Button>
                     <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
                       <Edit className="size-4" />
                     </Button>
@@ -192,8 +336,19 @@ export default function LowStocksPage() {
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
-          <div className="flex items-center gap-2 text-sm">
-            <span>&lt; 1-10 of {productsData.length} &gt;</span>
+          <div className="flex items-center gap-2 text-sm w-full">
+            <span>Row Per Page</span>
+            <Select defaultValue="10">
+              <SelectTrigger className="w-16 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span>Entries</span>
           </div>
           <Pagination className="justify-end">
             <PaginationContent>

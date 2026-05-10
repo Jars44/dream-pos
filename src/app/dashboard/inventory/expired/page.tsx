@@ -118,10 +118,14 @@ export default function ExpiredProductsPage() {
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
-                <Checkbox checked={selectedProducts.length === productsData.length} onCheckedChange={handleSelectAll} />
+                <Checkbox
+                  checked={selectedProducts.length === productsData.length}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white"
+                />
               </TableHead>
               <TableHead className="font-semibold">
                 <div className="flex items-center gap-1">
@@ -163,7 +167,7 @@ export default function ExpiredProductsPage() {
                 <TableCell className="font-medium">{product.sku}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
                       <Image
                         src={getProductImage(product.sku)}
                         alt={product.name}

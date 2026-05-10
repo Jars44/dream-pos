@@ -2,17 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  ChevronUp,
-  Eye,
-  Edit,
-  Trash2,
-  Search,
-  Download,
-  RefreshCw,
-  ArrowDownUp,
-  CirclePlus,
-} from "lucide-react";
+import { ChevronUp, Eye, Edit, Trash2, Search, Download, RefreshCw, ArrowDownUp, CirclePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -122,7 +112,7 @@ export default function ProductsPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-primary hover:bg-[#FF8D29] text-white">
+          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
             <CirclePlus className="size-4 mr-1" />
             Add Product
           </Button>
@@ -167,10 +157,14 @@ export default function ProductsPage() {
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
-                <Checkbox checked={selectedProducts.length === productsData.length} onCheckedChange={handleSelectAll} />
+                <Checkbox
+                  checked={selectedProducts.length === productsData.length}
+                  onCheckedChange={handleSelectAll}
+                  className="bg-white"
+                />
               </TableHead>
               <TableHead className="font-semibold">
                 <div className="flex items-center gap-1">
@@ -202,7 +196,7 @@ export default function ProductsPage() {
                 <TableCell className="font-medium">{product.sku}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
                       <Image
                         src={getProductImage(product.sku)}
                         alt={product.name}
