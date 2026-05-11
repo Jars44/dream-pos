@@ -34,7 +34,7 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-20 items-center gap-3 border-b px-6">
-          <Image src="/images/logo.png" alt="Logo" width={120} height={40} loading="lazy" />
+          <Image src="/images/logo.webp" alt="Logo" width={120} height={40} loading="lazy" />
           <Button
             variant="ghost"
             size="icon"

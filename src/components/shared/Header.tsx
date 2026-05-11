@@ -56,7 +56,7 @@ export function Header() {
         <div className="h-8 w-px bg-slate-200"></div>
 
         <Button size="icon" className="relative bg-slate-100 hover:bg-slate-200">
-          <Image src="/images/usa.webp" alt="US" height={5} width={5} className="size-5 rounded-sm object-cover" />
+          <Image src="/images/icons/usa.webp" alt="US" height={5} width={5} className="size-5 rounded-sm object-cover" />
         </Button>
 
         <Button size="icon" className="bg-slate-100 hover:bg-slate-200 text-slate-700">

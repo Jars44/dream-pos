@@ -107,7 +107,7 @@ export default function DashboardHomePage() {
         </div>
       </Alert>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
@@ -119,10 +119,10 @@ export default function DashboardHomePage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white/80">{metric.title}</p>
+                    <p className="text-sm font-medium text-white/80 text-wrap">{metric.title}</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-3xl font-bold text-white mt-1">{metric.value}</p>
-                      <div className="inline-flex items-center gap-1 mt-2 rounded-sm bg-white px-2 py-0.5 text-xs font-semibold">
+                      <p className="text-3xl font-bold text-white mt-1 text-wrap">{metric.value}</p>
+                      <div className="inline-flex items-center gap-1 mt-2 rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-wrap">
                         {metric.isPositive ? (
                           <ArrowUp className="size-3 text-emerald-500" />
                         ) : (
