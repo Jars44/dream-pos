@@ -21,19 +21,19 @@ describe('LowStocksPage', () => {
     expect(sendEmailBtn).toBeInTheDocument();
   });
 
-  it('renders Low Stocks tab button and Out of Stocks label', () => {
+  it('renders Low Stocks tab button and Out of Stock button', () => {
     render(<LowStocksPage />);
-    // Get both flex containers with justify-between: header + sub-header
-    const flexContainers = document.querySelectorAll('.flex.items-center.justify-between');
-    // Sub-header is the second one (index 1)
-    const subHeader = flexContainers[1] as HTMLElement;
-
-    // Low Stocks button should be in subHeader
-    const lowStocksBtn = within(subHeader).getByRole('button', { name: /low stocks/i });
+    const lowStocksBtn = screen.getByRole('button', { name: /low stocks/i });
     expect(lowStocksBtn).toBeInTheDocument();
+    const outOfStockBtn = screen.getByRole('button', { name: /out of stock/i });
+    expect(outOfStockBtn).toBeInTheDocument();
+  });
 
-    // Out of Stock text label (span)
-    expect(within(subHeader).getByText('Out of Stock')).toBeInTheDocument();
+  it('switches to Out of Stock tab when clicked', () => {
+    render(<LowStocksPage />);
+    const outOfStockBtn = screen.getByRole('button', { name: /out of stock/i });
+    fireEvent.click(outOfStockBtn);
+    expect(outOfStockBtn).toHaveClass('bg-[#FE9F43]');
   });
 
   it('renders Notify text label', () => {
@@ -41,10 +41,64 @@ describe('LowStocksPage', () => {
     expect(screen.getByText('Notify')).toBeInTheDocument();
   });
 
+  it('Notify switch toggles correctly', () => {
+    render(<LowStocksPage />);
+    let switchEl: HTMLElement | null = null;
+    try {
+      switchEl = screen.getByRole('switch');
+    } catch {
+      switchEl = screen.getByRole('checkbox');
+    }
+    expect(switchEl).toBeChecked();
+    fireEvent.click(switchEl);
+    expect(switchEl).not.toBeChecked();
+    fireEvent.click(switchEl);
+    expect(switchEl).toBeChecked();
+  });
+
   it('renders at least 3 filter dropdown selects', () => {
     render(<LowStocksPage />);
     const selects = screen.getAllByRole('combobox');
     expect(selects.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('filters by warehouse', () => {
+    render(<LowStocksPage />);
+    const selects = screen.getAllByRole('combobox');
+    const warehouseSelect = selects[0];
+    fireEvent.click(warehouseSelect);
+    const option = screen.getByRole('option', { name: 'Lavish Warehouse' });
+    fireEvent.click(option);
+    const table = screen.getByRole('table');
+    const cells = within(table).getAllByRole('cell');
+    const cellTexts = cells.map((c) => c.textContent?.trim());
+    expect(cellTexts).toContain('Lavish Warehouse');
+  });
+
+  it('filters by store', () => {
+    render(<LowStocksPage />);
+    const selects = screen.getAllByRole('combobox');
+    const storeSelect = selects[1];
+    fireEvent.click(storeSelect);
+    const option = screen.getByRole('option', { name: 'Electro Mart' });
+    fireEvent.click(option);
+    const table = screen.getByRole('table');
+    const cells = within(table).getAllByRole('cell');
+    const cellTexts = cells.map((c) => c.textContent?.trim());
+    expect(cellTexts).toContain('Electro Mart');
+  });
+
+  it('filters by category', () => {
+    render(<LowStocksPage />);
+    const selects = screen.getAllByRole('combobox');
+    const categorySelect = selects[2];
+    fireEvent.click(categorySelect);
+    const option = screen.getByRole('option', { name: 'Computers' });
+    fireEvent.click(option);
+    const table = screen.getByRole('table');
+    const cells = within(table).getAllByRole('cell');
+    const cellTexts = cells.map((c) => c.textContent?.trim());
+    expect(cellTexts).toContain('Computers');
   });
 
   it('renders data table with proper columns', () => {
@@ -66,14 +120,11 @@ describe('LowStocksPage', () => {
     render(<LowStocksPage />);
     const table = screen.getByRole('table');
     const rows = within(table).getAllByRole('row');
-    // Data rows (skip header)
     const dataRows = rows.slice(1);
-    // Each row should have at least 2 action buttons
     dataRows.forEach((row) => {
       const buttons = within(row).getAllByRole('button');
       expect(buttons.length).toBeGreaterThanOrEqual(2);
     });
-    // Verify no View (Eye) button exists anywhere
     expect(screen.queryByRole('button', { name: /view/i })).not.toBeInTheDocument();
   });
 
@@ -84,30 +135,47 @@ describe('LowStocksPage', () => {
     expect(screen.getByRole('link', { name: /previous/i })).toBeInTheDocument();
   });
 
-  it('Notify switch is checked by default', () => {
+  it('sorts by SKU', () => {
     render(<LowStocksPage />);
-    let switchEl: HTMLElement | null = null;
-    try {
-      switchEl = screen.getByRole('switch');
-    } catch {
-      switchEl = screen.getByRole('checkbox');
-    }
-    expect(switchEl).toBeChecked();
+    const table = screen.getByRole('table');
+    const skuHeader = within(table).getByText('SKU');
+    fireEvent.click(skuHeader);
+    const rows = within(table).getAllByRole('row');
+    const firstDataRow = rows[1] as HTMLElement;
+    const cells = within(firstDataRow).getAllByRole('cell');
+    const firstSku = cells[5].textContent;
+    expect(firstSku).toBe('PT001');
   });
 
-  it('Notify switch toggles correctly', () => {
+  it('sorts by Qty', () => {
     render(<LowStocksPage />);
-    let switchEl: HTMLElement | null = null;
-    try {
-      switchEl = screen.getByRole('switch');
-    } catch {
-      switchEl = screen.getByRole('checkbox');
-    }
+    const table = screen.getByRole('table');
+    const qtyHeader = within(table).getByText('Qty');
+    fireEvent.click(qtyHeader);
+    const rows = within(table).getAllByRole('row');
+    const firstDataRow = rows[1] as HTMLElement;
+    const cells = within(firstDataRow).getAllByRole('cell');
+    const firstQty = cells[6].textContent;
+    expect(parseInt(firstQty!)).toBeLessThanOrEqual(20);
+  });
 
-    expect(switchEl).toBeChecked();
-    fireEvent.click(switchEl);
-    expect(switchEl).not.toBeChecked();
-    fireEvent.click(switchEl);
-    expect(switchEl).toBeChecked();
+  it('sorts by Qty', () => {
+    render(<LowStocksPage />);
+    const table = screen.getByRole('table');
+    const qtyHeader = within(table).getByText('Qty').closest('div')!.parentElement!;
+    fireEvent.click(qtyHeader);
+    const rows = within(table).getAllByRole('row');
+    const firstDataRow = rows[1];
+    const cells = within(firstDataRow).getAllByRole('cell');
+    const firstQty = cells[6].textContent;
+    expect(parseInt(firstQty!)).toBeLessThanOrEqual(20);
+  });
+
+  it('shows empty state when no data matches', () => {
+    render(<LowStocksPage />);
+    const searchInput = screen.getByPlaceholderText('Search');
+    fireEvent.change(searchInput, { target: { value: 'ZZZNonexistent' } });
+    const table = screen.getByRole('table');
+    expect(within(table).getByText('No Data Found')).toBeInTheDocument();
   });
 });

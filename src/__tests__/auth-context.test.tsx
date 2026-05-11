@@ -40,7 +40,7 @@ describe('AuthContext', () => {
       wrapper: AuthProvider,
     });
 
-    let loginResult: boolean;
+    let loginResult = false;
     await act(async () => {
       loginResult = await result.current.login('admin@gmail.com', 'admin');
     });
@@ -54,7 +54,7 @@ describe('AuthContext', () => {
       wrapper: AuthProvider,
     });
 
-    let loginResult: boolean;
+    let loginResult = false;
     await act(async () => {
       loginResult = await result.current.login('wrong@email.com', 'wrongpass');
     });
