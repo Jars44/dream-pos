@@ -29,7 +29,7 @@ describe('LowStocksPage', () => {
         const outOfStockBtn = screen.getByRole('button', { name: /out of stock/i });
         fireEvent.click(outOfStockBtn);
         // Active tab should have the primary background color (hex or bg-primary)
-        expect(outOfStockBtn).toHaveClass('bg-[#FE9F43]');
+        expect(outOfStockBtn).toHaveClass('bg-primary');
     });
     it('renders Notify text label', () => {
         render(<LowStocksPage />);

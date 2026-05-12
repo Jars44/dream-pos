@@ -33,7 +33,7 @@ describe('LowStocksPage', () => {
     render(<LowStocksPage />);
     const outOfStockBtn = screen.getByRole('button', { name: /out of stock/i });
     fireEvent.click(outOfStockBtn);
-    expect(outOfStockBtn).toHaveClass('bg-[#FE9F43]');
+    expect(outOfStockBtn).toHaveClass('bg-primary');
   });
 
   it('renders Notify text label', () => {
