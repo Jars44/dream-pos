@@ -75,7 +75,7 @@ export default function SubCategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -96,9 +96,9 @@ export default function SubCategoryPage() {
   };
 
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -106,39 +106,29 @@ export default function SubCategoryPage() {
   const filteredAndSortedData = useMemo(() => {
     let result = [...subCategoriesData];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.code.toLowerCase().includes(query)
-      );
+      result = result.filter((c) => c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query));
     }
 
-    // Category filter
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "all") {
       result = result.filter((c) => c.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
-    // Status filter
-    if (selectedStatus) {
+    if (selectedStatus && selectedStatus !== "all") {
       result = result.filter((c) => c.status.toLowerCase() === selectedStatus.toLowerCase());
     }
 
-    // Sorting
     if (sortConfig) {
       result.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof typeof a];
         const bValue = b[sortConfig.key as keyof typeof b];
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
       });
@@ -225,7 +215,13 @@ export default function SubCategoryPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -238,7 +234,13 @@ export default function SubCategoryPage() {
                 <SelectItem value="Bags">Bags</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={selectedStatus} onValueChange={(value) => { setSelectedStatus(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedStatus}
+              onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -264,10 +266,7 @@ export default function SubCategoryPage() {
               <TableHead className="font-semibold">Sub Category</TableHead>
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('code')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("code")}>
                   Category Code
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -356,11 +355,14 @@ export default function SubCategoryPage() {
                 <PaginationPrevious
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handlePrevPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
+                .filter((page) => {
                   if (totalPages <= 7) return true;
                   if (page === 1 || page === totalPages) return true;
                   if (Math.abs(page - currentPage) <= 1) return true;
@@ -379,11 +381,15 @@ export default function SubCategoryPage() {
                       <PaginationLink
                         href="#"
                         isActive={page === currentPage}
-                        className={page === currentPage
-                          ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                          : "border border-slate-300 rounded-full"
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
                         }
-                        onClick={(e) => { e.preventDefault(); handlePageClick(page); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
                       >
                         {page}
                       </PaginationLink>
@@ -394,7 +400,10 @@ export default function SubCategoryPage() {
                 <PaginationNext
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
                 />
               </PaginationItem>
             </PaginationContent>

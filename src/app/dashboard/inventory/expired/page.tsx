@@ -28,16 +28,16 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const productsData = [
-  { sku: "PT001", name: "Lenovo IdeaPad 3", manufacturedDate: "24 Dec 2024", expiredDate: "20 Dec 2026" },
-  { sku: "PT002", name: "Beats Pro", manufacturedDate: "10 Dec 2024", expiredDate: "07 Dec 2026" },
-  { sku: "PT003", name: "Nike Jordan", manufacturedDate: "27 Nov 2024", expiredDate: "20 Nov 2026" },
-  { sku: "PT004", name: "Apple Series 5 Watch", manufacturedDate: "18 Nov 2024", expiredDate: "15 Nov 2026" },
-  { sku: "PT005", name: "Amazon Echo Dot", manufacturedDate: "06 Nov 2024", expiredDate: "04 Nov 2026" },
-  { sku: "PT006", name: "Sanford Chair Sofa", manufacturedDate: "25 Oct 2024", expiredDate: "20 Oct 2026" },
-  { sku: "PT007", name: "Red Premium Satchel", manufacturedDate: "14 Oct 2024", expiredDate: "10 Oct 2026" },
-  { sku: "PT008", name: "Iphone 14 Pro", manufacturedDate: "03 Oct 2024", expiredDate: "01 Oct 2026" },
-  { sku: "PT009", name: "Gaming Chair", manufacturedDate: "20 Sep 2024", expiredDate: "16 Sep 2026" },
-  { sku: "PT010", name: "Borealis Backpack", manufacturedDate: "10 Sep 2024", expiredDate: "06 Sep 2026" },
+  { sku: "PT001", name: "Lenovo IdeaPad 3", manufacturedDate: "24/12/2024", expiredDate: "20/12/2026" },
+  { sku: "PT002", name: "Beats Pro", manufacturedDate: "10/12/2024", expiredDate: "07/12/2026" },
+  { sku: "PT003", name: "Nike Jordan", manufacturedDate: "27/11/2024", expiredDate: "20/11/2026" },
+  { sku: "PT004", name: "Apple Series 5 Watch", manufacturedDate: "18/11/2024", expiredDate: "15/11/2026" },
+  { sku: "PT005", name: "Amazon Echo Dot", manufacturedDate: "06/11/2024", expiredDate: "04/11/2026" },
+  { sku: "PT006", name: "Sanford Chair Sofa", manufacturedDate: "25/10/2024", expiredDate: "20/10/2026" },
+  { sku: "PT007", name: "Red Premium Satchel", manufacturedDate: "14/10/2024", expiredDate: "10/10/2026" },
+  { sku: "PT008", name: "Iphone 14 Pro", manufacturedDate: "03/10/2024", expiredDate: "01/10/2026" },
+  { sku: "PT009", name: "Gaming Chair", manufacturedDate: "20/09/2024", expiredDate: "16/09/2026" },
+  { sku: "PT010", name: "Borealis Backpack", manufacturedDate: "10/09/2024", expiredDate: "06/09/2026" },
 ];
 
 const getProductImage = (sku: string): string => {
@@ -59,7 +59,7 @@ const getProductImage = (sku: string): string => {
 export default function ExpiredProductsPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -80,9 +80,9 @@ export default function ExpiredProductsPage() {
   };
 
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -90,29 +90,21 @@ export default function ExpiredProductsPage() {
   const filteredAndSortedData = useMemo(() => {
     let result = [...productsData];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.sku.toLowerCase().includes(query)
-      );
+      result = result.filter((p) => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query));
     }
 
-    // Sorting
     if (sortConfig) {
       result.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof typeof a];
         const bValue = b[sortConfig.key as keyof typeof b];
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
       });
@@ -207,10 +199,7 @@ export default function ExpiredProductsPage() {
               </TableHead>
               <TableHead className="font-semibold">
                 <div className="flex items-center gap-1">
-                  <div
-                    className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => handleSort('sku')}
-                  >
+                  <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("sku")}>
                     SKU
                     <div className="flex flex-col">
                       <ArrowDownUp className="size-3" />
@@ -220,10 +209,7 @@ export default function ExpiredProductsPage() {
               </TableHead>
               <TableHead className="font-semibold">Product Name</TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('manufacturedDate')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("manufacturedDate")}>
                   Manufactured Date
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -231,10 +217,7 @@ export default function ExpiredProductsPage() {
                 </div>
               </TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('expiredDate')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("expiredDate")}>
                   Expired Date
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -317,11 +300,14 @@ export default function ExpiredProductsPage() {
                 <PaginationPrevious
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handlePrevPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
+                .filter((page) => {
                   if (totalPages <= 7) return true;
                   if (page === 1 || page === totalPages) return true;
                   if (Math.abs(page - currentPage) <= 1) return true;
@@ -340,11 +326,15 @@ export default function ExpiredProductsPage() {
                       <PaginationLink
                         href="#"
                         isActive={page === currentPage}
-                        className={page === currentPage
-                          ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                          : "border border-slate-300 rounded-full"
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
                         }
-                        onClick={(e) => { e.preventDefault(); handlePageClick(page); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
                       >
                         {page}
                       </PaginationLink>
@@ -355,7 +345,10 @@ export default function ExpiredProductsPage() {
                 <PaginationNext
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
                 />
               </PaginationItem>
             </PaginationContent>

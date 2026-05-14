@@ -144,7 +144,7 @@ export default function LowStocksPage() {
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedStore, setSelectedStore] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState<"low" | "out">("low");
@@ -166,9 +166,9 @@ export default function LowStocksPage() {
   };
 
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -176,7 +176,6 @@ export default function LowStocksPage() {
   const filteredAndSortedData = useMemo(() => {
     let result = [...productsData];
 
-    // Tab filtering first
     if (activeTab === "low") {
       result = result.filter((p) => p.qty > 0 && p.qty <= p.qtyAlert);
     } else {
@@ -191,38 +190,32 @@ export default function LowStocksPage() {
           p.name.toLowerCase().includes(query) ||
           p.sku.toLowerCase().includes(query) ||
           p.warehouse.toLowerCase().includes(query) ||
-          p.store.toLowerCase().includes(query)
+          p.store.toLowerCase().includes(query),
       );
     }
 
-    // Warehouse filter
-    if (selectedWarehouse) {
+    if (selectedWarehouse && selectedWarehouse !== "all") {
       result = result.filter((p) => p.warehouse.toLowerCase() === selectedWarehouse.toLowerCase());
     }
 
-    // Store filter
-    if (selectedStore) {
+    if (selectedStore && selectedStore !== "all") {
       result = result.filter((p) => p.store.toLowerCase() === selectedStore.toLowerCase());
     }
 
-    // Category filter
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "all") {
       result = result.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
-    // Sorting
     if (sortConfig) {
       result.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof typeof a];
         const bValue = b[sortConfig.key as keyof typeof b];
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
       });
@@ -297,14 +290,20 @@ export default function LowStocksPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4 rounded-lg border-slate-200 overflow-hidden">
           <Button
-            className={`bg-[#FE9F43] hover:bg-[#FF8D29] text-white rounded-l-md border ${activeTab === 'low' ? 'bg-[#FE9F43]' : 'bg-white text-black'}`}
-            onClick={() => { setActiveTab('low'); setCurrentPage(1); }}
+            className={`bg-[#FE9F43] hover:bg-[#FF8D29] text-white rounded-l-md border ${activeTab === "low" ? "bg-[#FE9F43]" : "bg-white text-black"}`}
+            onClick={() => {
+              setActiveTab("low");
+              setCurrentPage(1);
+            }}
           >
             Low Stocks
           </Button>
           <Button
-            className={`rounded-r-md border ${activeTab === 'out' ? 'bg-[#FE9F43] text-white hover:bg-[#FF8D29]' : 'bg-white text-black hover:bg-slate-50'}`}
-            onClick={() => { setActiveTab('out'); setCurrentPage(1); }}
+            className={`rounded-r-md border ${activeTab === "out" ? "bg-[#FE9F43] text-white hover:bg-[#FF8D29]" : "bg-white text-black hover:bg-slate-50"}`}
+            onClick={() => {
+              setActiveTab("out");
+              setCurrentPage(1);
+            }}
           >
             Out of Stock
           </Button>
@@ -334,7 +333,13 @@ export default function LowStocksPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Select value={selectedWarehouse} onValueChange={(value) => { setSelectedWarehouse(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedWarehouse}
+              onValueChange={(value) => {
+                setSelectedWarehouse(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Warehouse" />
               </SelectTrigger>
@@ -347,7 +352,13 @@ export default function LowStocksPage() {
                 <SelectItem value="Overflow Warehouse">Overflow Warehouse</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={selectedStore} onValueChange={(value) => { setSelectedStore(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedStore}
+              onValueChange={(value) => {
+                setSelectedStore(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Store" />
               </SelectTrigger>
@@ -360,7 +371,13 @@ export default function LowStocksPage() {
                 <SelectItem value="Volt Vault">Volt Vault</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -393,10 +410,7 @@ export default function LowStocksPage() {
               </TableHead>
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('sku')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("sku")}>
                   SKU
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -404,10 +418,7 @@ export default function LowStocksPage() {
                 </div>
               </TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('qty')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("qty")}>
                   Qty
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -494,11 +505,14 @@ export default function LowStocksPage() {
                 <PaginationPrevious
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handlePrevPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
+                .filter((page) => {
                   if (totalPages <= 7) return true;
                   if (page === 1 || page === totalPages) return true;
                   if (Math.abs(page - currentPage) <= 1) return true;
@@ -517,11 +531,15 @@ export default function LowStocksPage() {
                       <PaginationLink
                         href="#"
                         isActive={page === currentPage}
-                        className={page === currentPage
-                          ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                          : "border border-slate-300 rounded-full"
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
                         }
-                        onClick={(e) => { e.preventDefault(); handlePageClick(page); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
                       >
                         {page}
                       </PaginationLink>
@@ -532,7 +550,10 @@ export default function LowStocksPage() {
                 <PaginationNext
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
                 />
               </PaginationItem>
             </PaginationContent>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { format, isValid } from "date-fns";
 import {
   Info,
   CircleChevronDown,
@@ -23,6 +24,7 @@ import {
   PlusCircle,
   Strikethrough,
   ChevronDown,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,8 +40,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState } from "react";
 
 export default function CreateProductPage() {
+  const [manufacturedDate, setManufacturedDate] = useState<Date | undefined>(undefined);
+  const [expiryDate, setExpiryDate] = useState<Date | undefined>(undefined);
+
+  const formatDate = (date: Date | undefined) => {
+    if (!date || !isValid(date)) return "";
+    return format(date, "dd/MM/yyyy");
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-50/50">
       <div className="flex items-center justify-between mb-6">
@@ -128,7 +141,7 @@ export default function CreateProductPage() {
               <label className="text-sm font-medium text-black">
                 Slug <span className="text-red-500">*</span>
               </label>
-              <Input placeholder="product-slug" className="bg-white border-slate-200" />
+              <Input placeholder="Enter slug" className="bg-white border-slate-200" />
             </div>
 
             <div className="space-y-2">
@@ -498,18 +511,40 @@ export default function CreateProductPage() {
               <label className="text-sm font-medium text-black">
                 Manufactured Date <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <Input type="date" placeholder="dd/mm/yyyy" className="bg-white border-slate-200" />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between text-left font-normal bg-white border-slate-200"
+                  >
+                    <span>{manufacturedDate ? formatDate(manufacturedDate) : "dd/mm/yyyy"}</span>
+                    <CalendarIcon className="size-4 text-black" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar mode="single" selected={manufacturedDate} onSelect={setManufacturedDate} />
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-black">
                 Expiry On <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <Input type="date" className="bg-white border-slate-200" />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between text-left font-normal bg-white border-slate-200"
+                  >
+                    <span>{expiryDate ? formatDate(expiryDate) : "dd/mm/yyyy"}</span>
+                    <CalendarIcon className="size-4 text-black" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar mode="single" selected={expiryDate} onSelect={setExpiryDate} />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </CardContent>

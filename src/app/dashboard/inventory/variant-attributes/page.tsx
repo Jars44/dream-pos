@@ -28,23 +28,23 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const variantAttributesData = [
-  { id: 1, name: "Size", values: "XS, S, M, L, XL", createdDate: "24 Dec 2024", status: "Active" },
-  { id: 2, name: "Color", values: "Red, Blue, Green", createdDate: "10 Dec 2024", status: "Active" },
-  { id: 3, name: "Capacity", values: "Small, Medium, Large", createdDate: "27 Nov 2024", status: "Active" },
-  { id: 4, name: "Material", values: "Cotton, Leather, Synthetic", createdDate: "18 Nov 2024", status: "Active" },
-  { id: 5, name: "Weight", values: "Light, Heavy", createdDate: "06 Nov 2024", status: "Active" },
-  { id: 6, name: "Style", values: "Casual, Formal, Sporty", createdDate: "25 Oct 2024", status: "Active" },
-  { id: 7, name: "Pattern", values: "Solid, Striped, Printed", createdDate: "14 Oct 2024", status: "Active" },
-  { id: 8, name: "Memory", values: "8 GB, 16 GB, 36 GB", createdDate: "03 Oct 2024", status: "Active" },
-  { id: 9, name: "Storage", values: "128 GB, 256 GB, 512 GB, 1TB", createdDate: "20 Sep 2024", status: "Active" },
-  { id: 10, name: "Length", values: "Short, Regular, Long", createdDate: "10 Sep 2024", status: "Active" },
+  { id: 1, name: "Size", values: "XS, S, M, L, XL", createdDate: "24/12/2024", status: "Active" },
+  { id: 2, name: "Color", values: "Red, Blue, Green", createdDate: "10/12/2024", status: "Active" },
+  { id: 3, name: "Capacity", values: "Small, Medium, Large", createdDate: "27/11/2024", status: "Active" },
+  { id: 4, name: "Material", values: "Cotton, Leather, Synthetic", createdDate: "18/11/2024", status: "Active" },
+  { id: 5, name: "Weight", values: "Light, Heavy", createdDate: "06/11/2024", status: "Active" },
+  { id: 6, name: "Style", values: "Casual, Formal, Sporty", createdDate: "25/10/2024", status: "Active" },
+  { id: 7, name: "Pattern", values: "Solid, Striped, Printed", createdDate: "14/10/2024", status: "Active" },
+  { id: 8, name: "Memory", values: "8 GB, 16 GB, 36 GB", createdDate: "03/10/2024", status: "Active" },
+  { id: 9, name: "Storage", values: "128 GB, 256 GB, 512 GB, 1TB", createdDate: "20/09/2024", status: "Active" },
+  { id: 10, name: "Length", values: "Short, Regular, Long", createdDate: "10/09/2024", status: "Active" },
 ];
 
 export default function VariantAttributesPage() {
   const [selectedVariants, setSelectedVariants] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -65,9 +65,9 @@ export default function VariantAttributesPage() {
   };
 
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -75,34 +75,25 @@ export default function VariantAttributesPage() {
   const filteredAndSortedData = useMemo(() => {
     let result = [...variantAttributesData];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (v) =>
-          v.name.toLowerCase().includes(query) ||
-          v.values.toLowerCase().includes(query)
-      );
+      result = result.filter((v) => v.name.toLowerCase().includes(query) || v.values.toLowerCase().includes(query));
     }
 
-    // Status filter
-    if (selectedStatus) {
+    if (selectedStatus && selectedStatus !== "all") {
       result = result.filter((v) => v.status.toLowerCase() === selectedStatus.toLowerCase());
     }
 
-    // Sorting
     if (sortConfig) {
       result.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof typeof a];
         const bValue = b[sortConfig.key as keyof typeof b];
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
       });
@@ -189,7 +180,13 @@ export default function VariantAttributesPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Select value={selectedStatus} onValueChange={(value) => { setSelectedStatus(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedStatus}
+              onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -214,10 +211,7 @@ export default function VariantAttributesPage() {
               <TableHead className="font-semibold">Variant</TableHead>
               <TableHead className="font-semibold">Values</TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('createdDate')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("createdDate")}>
                   Created Date
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -289,11 +283,14 @@ export default function VariantAttributesPage() {
                 <PaginationPrevious
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handlePrevPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
+                .filter((page) => {
                   if (totalPages <= 7) return true;
                   if (page === 1 || page === totalPages) return true;
                   if (Math.abs(page - currentPage) <= 1) return true;
@@ -312,11 +309,15 @@ export default function VariantAttributesPage() {
                       <PaginationLink
                         href="#"
                         isActive={page === currentPage}
-                        className={page === currentPage
-                          ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                          : "border border-slate-300 rounded-full"
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
                         }
-                        onClick={(e) => { e.preventDefault(); handlePageClick(page); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
                       >
                         {page}
                       </PaginationLink>
@@ -327,7 +328,10 @@ export default function VariantAttributesPage() {
                 <PaginationNext
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
                 />
               </PaginationItem>
             </PaginationContent>

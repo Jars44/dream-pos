@@ -66,7 +66,7 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -87,9 +87,9 @@ export default function ProductsPage() {
   };
 
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -97,40 +97,34 @@ export default function ProductsPage() {
   const filteredAndSortedData = useMemo(() => {
     let result = [...productsData];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
           p.sku.toLowerCase().includes(query) ||
-          p.brand.toLowerCase().includes(query)
+          p.brand.toLowerCase().includes(query),
       );
     }
 
-    // Category filter
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "all") {
       result = result.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
-    // Brand filter
-    if (selectedBrand) {
+    if (selectedBrand && selectedBrand !== "all") {
       result = result.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
     }
 
-    // Sorting
     if (sortConfig) {
       result.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof typeof a];
         const bValue = b[sortConfig.key as keyof typeof b];
 
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
         return 0;
       });
@@ -221,7 +215,13 @@ export default function ProductsPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -234,7 +234,13 @@ export default function ProductsPage() {
                 <SelectItem value="Bags">Bags</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={selectedBrand} onValueChange={(value) => { setSelectedBrand(value); setCurrentPage(1); }}>
+            <Select
+              value={selectedBrand}
+              onValueChange={(value) => {
+                setSelectedBrand(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Brand" />
               </SelectTrigger>
@@ -260,10 +266,7 @@ export default function ProductsPage() {
                 />
               </TableHead>
               <TableHead className="font-semibold">
-                <div
-                  className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => handleSort('sku')}
-                >
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("sku")}>
                   SKU
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -373,11 +376,14 @@ export default function ProductsPage() {
                 <PaginationPrevious
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handlePrevPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
+                .filter((page) => {
                   if (totalPages <= 7) return true;
                   if (page === 1 || page === totalPages) return true;
                   if (Math.abs(page - currentPage) <= 1) return true;
@@ -396,11 +402,15 @@ export default function ProductsPage() {
                       <PaginationLink
                         href="#"
                         isActive={page === currentPage}
-                        className={page === currentPage
-                          ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                          : "border border-slate-300 rounded-full"
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
                         }
-                        onClick={(e) => { e.preventDefault(); handlePageClick(page); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
                       >
                         {page}
                       </PaginationLink>
@@ -411,7 +421,10 @@ export default function ProductsPage() {
                 <PaginationNext
                   href="#"
                   className="border border-slate-300 rounded-full"
-                  onClick={(e) => { e.preventDefault(); handleNextPage(); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
                 />
               </PaginationItem>
             </PaginationContent>

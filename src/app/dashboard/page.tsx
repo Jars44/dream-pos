@@ -8,12 +8,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function DashboardHomePage() {
   const [date, setDate] = useState<{ from: Date; to: Date }>({
     from: new Date(2024, 0, 1),
     to: new Date(2024, 0, 7),
   });
+  const [showNotification, setShowNotification] = useState(true);
 
   const metrics = [
     {
@@ -78,7 +80,6 @@ export default function DashboardHomePage() {
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
             <Calendar
-              initialFocus
               mode="range"
               defaultMonth={date.from}
               selected={date}
@@ -94,18 +95,29 @@ export default function DashboardHomePage() {
         </Popover>
       </div>
 
-      <Alert className="border-orange-200 bg-orange-50 text-orange-600">
-        <div className="flex items-center gap-3 flex-1">
-          <Info className="size-5 text-orange-500 shrink-0" />
-          <AlertDescription className="flex-1 text-slate-600">
-            Your Product <span className="text-orange-500 font-bold">Apple Iphone 15 is running Low, </span>already
-            below 5 Pcs.. <span className="text-orange-500 font-bold underline cursor-pointer">Add Stock</span>
-          </AlertDescription>
-          <button className="p-1 hover:bg-orange-100 rounded transition-colors shrink-0 cursor-pointer">
-            <X className="size-4 text-orange-500" />
-          </button>
-        </div>
-      </Alert>
+      {showNotification && (
+        <Alert className="border-orange-200 bg-orange-50 text-orange-600">
+          <div className="flex items-center gap-3 flex-1">
+            <Info className="size-5 text-orange-500 shrink-0" />
+            <AlertDescription className="flex-1 text-slate-600">
+              Your Product <span className="text-orange-500 font-bold">Apple Iphone 15 is running Low, </span>already
+              below 5 Pcs..{" "}
+              <Link
+                href="/dashboard/inventory/products"
+                className="text-orange-500 hover:text-orange-600 font-bold underline cursor-pointer"
+              >
+                Add Stock
+              </Link>
+            </AlertDescription>
+            <button
+              className="p-1 hover:bg-orange-100 rounded transition-colors shrink-0 cursor-pointer"
+              onClick={() => setShowNotification(false)}
+            >
+              <X className="size-4 text-orange-500" />
+            </button>
+          </div>
+        </Alert>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {metrics.map((metric) => {

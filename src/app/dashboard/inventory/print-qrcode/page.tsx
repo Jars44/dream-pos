@@ -91,7 +91,7 @@ export default function PrintQRCodePage() {
         </div>
 
         <div className="bg-slate-50 p-8 rounded-md mb-6">
-          <Table className="border">
+          <Table>
             <TableHeader className="bg-zinc-200/40">
               <TableRow>
                 <TableHead>Product</TableHead>
