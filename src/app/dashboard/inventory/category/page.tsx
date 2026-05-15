@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, Edit, Trash2, Search, RefreshCw, ArrowDownUp, CirclePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -28,20 +28,25 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const categoriesData = [
-  { id: 1, name: "Computers", slug: "computers", createdOn: "24 Dec 2024", status: "Active" },
-  { id: 2, name: "Electronics", slug: "electronics", createdOn: "10 Dec 2024", status: "Active" },
-  { id: 3, name: "Shoe", slug: "shoe", createdOn: "27 Nov 2024", status: "Active" },
-  { id: 4, name: "Cosmetics", slug: "cosmetics", createdOn: "18 Nov 2024", status: "Active" },
-  { id: 5, name: "Groceries", slug: "groceries", createdOn: "06 Nov 2024", status: "Active" },
-  { id: 6, name: "Furniture", slug: "furniture", createdOn: "25 Oct 2024", status: "Active" },
-  { id: 7, name: "Bags", slug: "bags", createdOn: "14 Oct 2024", status: "Active" },
-  { id: 8, name: "Phone", slug: "phone", createdOn: "03 Oct 2024", status: "Active" },
-  { id: 9, name: "Appliances", slug: "appliances", createdOn: "20 Sep 2024", status: "Active" },
-  { id: 10, name: "Clothing", slug: "clothing", createdOn: "10 Sep 2024", status: "Active" },
+  { id: 1, name: "Computers", slug: "computers", createdOn: "24/12/2024", status: "Active" },
+  { id: 2, name: "Electronics", slug: "electronics", createdOn: "10/12/2024", status: "Active" },
+  { id: 3, name: "Shoe", slug: "shoe", createdOn: "27/11/2024", status: "Active" },
+  { id: 4, name: "Cosmetics", slug: "cosmetics", createdOn: "18/11/2024", status: "Active" },
+  { id: 5, name: "Groceries", slug: "groceries", createdOn: "06/11/2024", status: "Active" },
+  { id: 6, name: "Furniture", slug: "furniture", createdOn: "25/10/2024", status: "Active" },
+  { id: 7, name: "Bags", slug: "bags", createdOn: "14/10/2024", status: "Active" },
+  { id: 8, name: "Phone", slug: "phone", createdOn: "03/10/2024", status: "Active" },
+  { id: 9, name: "Appliances", slug: "appliances", createdOn: "20/09/2024", status: "Active" },
+  { id: 10, name: "Clothing", slug: "clothing", createdOn: "10/09/2024", status: "Active" },
 ];
 
 export default function CategoryPage() {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -57,6 +62,71 @@ export default function CategoryPage() {
     } else {
       setSelectedCategories(selectedCategories.filter((s) => s !== id));
     }
+  };
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...categoriesData];
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((c) => c.name.toLowerCase().includes(query) || c.slug.toLowerCase().includes(query));
+    }
+
+    // Status filter
+    if (selectedStatus && selectedStatus !== "all") {
+      result = result.filter((c) => c.status.toLowerCase() === selectedStatus.toLowerCase());
+    }
+
+    // Sorting
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [searchQuery, selectedStatus, sortConfig]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * parseInt(itemsPerPage);
+    const end = start + parseInt(itemsPerPage);
+    return filteredAndSortedData.slice(start, end);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -102,14 +172,29 @@ export default function CategoryPage() {
         <div className="flex items-center justify-between px-2 my-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search" className="pl-9" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Select>
+            <Select
+              value={selectedStatus}
+              onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
@@ -129,7 +214,7 @@ export default function CategoryPage() {
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">Category Slug</TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("createdOn")}>
                   Created On
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -141,41 +226,49 @@ export default function CategoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categoriesData.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedCategories.includes(category.id)}
-                    onCheckedChange={(checked) => handleSelectCategory(category.id, !!checked)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium text-black">{category.name}</TableCell>
-                <TableCell>{category.slug}</TableCell>
-                <TableCell>{category.createdOn}</TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                    Active
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Edit className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                  No Data Found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((category) => (
+                <TableRow key={category.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedCategories.includes(category.id)}
+                      onCheckedChange={(checked) => handleSelectCategory(category.id, !!checked)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium text-black">{category.name}</TableCell>
+                  <TableCell>{category.slug}</TableCell>
+                  <TableCell>{category.createdOn}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      Active
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
           <div className="flex items-center gap-2 text-sm w-full">
             <span>Row Per Page</span>
-            <Select defaultValue="10">
+            <Select value={itemsPerPage} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-16 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -190,42 +283,59 @@ export default function CategoryPage() {
           <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" className="border border-slate-300 rounded-full" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
+                <PaginationPrevious
                   href="#"
-                  isActive
-                  className="bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                >
-                  1
-                </PaginationLink>
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
+                />
               </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  if (totalPages <= 7) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, idx, arr) => {
+                  if (idx > 0 && arr[idx - 1] !== page - 1) {
+                    return (
+                      <PaginationItem key={`ellipsis-${page}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
               <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  3
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  4
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  15
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" className="border border-slate-300 rounded-full" />
+                <PaginationNext
+                  href="#"
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

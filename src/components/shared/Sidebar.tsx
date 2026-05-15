@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronsLeft, Menu, X, ChevronDown } from "lucide-react";
+import { ChevronsLeft, Menu, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-20 items-center gap-3 border-b px-6">
-          <Image src="/images/logo.png" alt="Logo" width={120} height={40} loading="lazy" />
+          <Image src="/images/logo.webp" alt="Logo" width={120} height={40} loading="lazy" />
           <Button
             variant="ghost"
             size="icon"

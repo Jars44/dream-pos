@@ -91,7 +91,7 @@ export default function PrintQRCodePage() {
         </div>
 
         <div className="bg-slate-50 p-8 rounded-md mb-6">
-          <Table className="border">
+          <Table>
             <TableHeader className="bg-zinc-200/40">
               <TableRow>
                 <TableHead>Product</TableHead>
@@ -101,8 +101,8 @@ export default function PrintQRCodePage() {
                 <TableHead>Qty</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="bg-white">
-              <TableRow>
+            <TableBody>
+              <TableRow className="hover:bg-white">
                 <TableCell colSpan={5}>
                   <div className="flex flex-col items-center justify-center py-12 gap-3">
                     <FileText className="size-16 text-slate-300" />

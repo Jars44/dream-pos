@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, Edit, Trash2, Search, RefreshCw, ArrowDownUp, CirclePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -28,16 +28,16 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const brandsData = [
-  { id: 1, name: "Lenovo", createdDate: "24 Dec 2024", status: "Active" },
-  { id: 2, name: "Beats", createdDate: "10 Dec 2024", status: "Active" },
-  { id: 3, name: "Nike", createdDate: "27 Dec 2024", status: "Active" },
-  { id: 4, name: "Apple", createdDate: "18 Nov 2024", status: "Active" },
-  { id: 5, name: "Amazon", createdDate: "06 Nov 2024", status: "Active" },
-  { id: 6, name: "Woodmart", createdDate: "25 Oct 2024", status: "Active" },
-  { id: 7, name: "Dior", createdDate: "14 Oct 2024", status: "Active" },
-  { id: 8, name: "Lava", createdDate: "03 Oct 2024", status: "Active" },
-  { id: 9, name: "Nilkamal", createdDate: "20 Sep 2024", status: "Active" },
-  { id: 10, name: "The North Face", createdDate: "10 Sep 2024", status: "Active" },
+  { id: 1, name: "Lenovo", createdDate: "24/12/2024", status: "Active" },
+  { id: 2, name: "Beats", createdDate: "10/12/2024", status: "Active" },
+  { id: 3, name: "Nike", createdDate: "27/12/2024", status: "Active" },
+  { id: 4, name: "Apple", createdDate: "18/11/2024", status: "Active" },
+  { id: 5, name: "Amazon", createdDate: "06/11/2024", status: "Active" },
+  { id: 6, name: "Woodmart", createdDate: "25/10/2024", status: "Active" },
+  { id: 7, name: "Dior", createdDate: "14/10/2024", status: "Active" },
+  { id: 8, name: "Lava", createdDate: "03/10/2024", status: "Active" },
+  { id: 9, name: "Nilkamal", createdDate: "20/09/2024", status: "Active" },
+  { id: 10, name: "The North Face", createdDate: "10/09/2024", status: "Active" },
 ];
 
 const getBrandImage = (name: string): string => {
@@ -58,6 +58,11 @@ const getBrandImage = (name: string): string => {
 
 export default function BrandsPage() {
   const [selectedBrands, setSelectedBrands] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -73,6 +78,68 @@ export default function BrandsPage() {
     } else {
       setSelectedBrands(selectedBrands.filter((s) => s !== id));
     }
+  };
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...brandsData];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((b) => b.name.toLowerCase().includes(query));
+    }
+
+    if (selectedStatus && selectedStatus !== "all") {
+      result = result.filter((b) => b.status.toLowerCase() === selectedStatus.toLowerCase());
+    }
+
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [searchQuery, selectedStatus, sortConfig]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * parseInt(itemsPerPage);
+    const end = start + parseInt(itemsPerPage);
+    return filteredAndSortedData.slice(start, end);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -118,14 +185,29 @@ export default function BrandsPage() {
         <div className="flex items-center justify-between px-2 my-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search" className="pl-9" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Select>
+            <Select
+              value={selectedStatus}
+              onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
@@ -145,7 +227,7 @@ export default function BrandsPage() {
               <TableHead className="font-semibold">Brand</TableHead>
               <TableHead className="font-semibold">Image</TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("createdDate")}>
                   Created Date
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -157,55 +239,63 @@ export default function BrandsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {brandsData.map((brand) => (
-              <TableRow key={brand.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedBrands.includes(brand.id)}
-                    onCheckedChange={(checked) => handleSelectBrand(brand.id, !!checked)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium text-black">{brand.name}</TableCell>
-                <TableCell>
-                  <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
-                    <Image
-                      src={getBrandImage(brand.name)}
-                      alt={brand.name}
-                      className="w-8 h-8 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                      width={8}
-                      height={8}
-                      loading="lazy"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>{brand.createdDate}</TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                    Active
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Edit className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                  No Data Found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((brand) => (
+                <TableRow key={brand.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedBrands.includes(brand.id)}
+                      onCheckedChange={(checked) => handleSelectBrand(brand.id, !!checked)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium text-black">{brand.name}</TableCell>
+                  <TableCell>
+                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
+                      <Image
+                        src={getBrandImage(brand.name)}
+                        alt={brand.name}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                        width={8}
+                        height={8}
+                        loading="lazy"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>{brand.createdDate}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      Active
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
           <div className="flex items-center gap-2 text-sm w-full">
             <span>Row Per Page</span>
-            <Select defaultValue="10">
+            <Select value={itemsPerPage} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-16 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -220,42 +310,59 @@ export default function BrandsPage() {
           <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" className="border border-slate-300 rounded-full" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
+                <PaginationPrevious
                   href="#"
-                  isActive
-                  className="bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                >
-                  1
-                </PaginationLink>
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
+                />
               </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  if (totalPages <= 7) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, idx, arr) => {
+                  if (idx > 0 && arr[idx - 1] !== page - 1) {
+                    return (
+                      <PaginationItem key={`ellipsis-${page}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
               <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  3
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  4
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  15
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" className="border border-slate-300 rounded-full" />
+                <PaginationNext
+                  href="#"
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

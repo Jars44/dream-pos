@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, Eye, Edit, Trash2, Search, Download, RefreshCw, ArrowDownUp, CirclePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { productsData } from "@/lib/mock-data";
+import { useProductStore } from "@/store/useProductStore";
+import type { Product } from "@/store/useProductStore";
 
 const getProductImage = (sku: string): string => {
   const imageMap: Record<string, string> = {
@@ -62,11 +63,18 @@ const getUserImage = (name: string): string => {
 };
 
 export default function ProductsPage() {
+  const products = useProductStore((state) => state.products);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(productsData.map((p) => p.sku));
+      setSelectedProducts(products.map((p) => p.sku));
     } else {
       setSelectedProducts([]);
     }
@@ -78,6 +86,77 @@ export default function ProductsPage() {
     } else {
       setSelectedProducts(selectedProducts.filter((s) => s !== sku));
     }
+  };
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...products];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.sku.toLowerCase().includes(query) ||
+          p.brand.toLowerCase().includes(query),
+      );
+    }
+
+    if (selectedCategory && selectedCategory !== "all") {
+      result = result.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
+    }
+
+    if (selectedBrand && selectedBrand !== "all") {
+      result = result.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    }
+
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof Product];
+        const bValue = b[sortConfig.key as keyof Product];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [products, searchQuery, selectedCategory, selectedBrand, sortConfig]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * parseInt(itemsPerPage);
+    const end = start + parseInt(itemsPerPage);
+    return filteredAndSortedData.slice(start, end);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -112,9 +191,11 @@ export default function ProductsPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
-            <CirclePlus className="size-4 mr-1" />
-            Add Product
+          <Button asChild className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
+            <Link href="/dashboard/inventory/create-product">
+              <CirclePlus className="size-4 mr-1" />
+              Add Product
+            </Link>
           </Button>
           <Button className="bg-[#092C4C] hover:bg-slate-800 text-white">
             <Download className="size-4 mr-1" />
@@ -127,31 +208,53 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between px-2 my-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search" className="pl-9" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Select>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="computers">Computers</SelectItem>
-                <SelectItem value="electronics">Electronics</SelectItem>
-                <SelectItem value="shoe">Shoe</SelectItem>
-                <SelectItem value="furniture">Furniture</SelectItem>
-                <SelectItem value="bags">Bags</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Computers">Computers</SelectItem>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Shoe">Shoe</SelectItem>
+                <SelectItem value="Furniture">Furniture</SelectItem>
+                <SelectItem value="Bags">Bags</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select
+              value={selectedBrand}
+              onValueChange={(value) => {
+                setSelectedBrand(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Brand" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lenovo">Lenovo</SelectItem>
-                <SelectItem value="beats">Beats</SelectItem>
-                <SelectItem value="nike">Nike</SelectItem>
-                <SelectItem value="apple">Apple</SelectItem>
-                <SelectItem value="amazon">Amazon</SelectItem>
+                <SelectItem value="all">All Brands</SelectItem>
+                <SelectItem value="Lenovo">Lenovo</SelectItem>
+                <SelectItem value="Beats">Beats</SelectItem>
+                <SelectItem value="Nike">Nike</SelectItem>
+                <SelectItem value="Apple">Apple</SelectItem>
+                <SelectItem value="Amazon">Amazon</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -161,13 +264,13 @@ export default function ProductsPage() {
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedProducts.length === productsData.length}
+                  checked={selectedProducts.length === products.length}
                   onCheckedChange={handleSelectAll}
                   className="bg-white"
                 />
               </TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("sku")}>
                   SKU
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -185,73 +288,81 @@ export default function ProductsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {productsData.map((product) => (
-              <TableRow key={product.sku}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedProducts.includes(product.sku)}
-                    onCheckedChange={(checked) => handleSelectProduct(product.sku, !!checked)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{product.sku}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
-                      <Image
-                        src={getProductImage(product.sku)}
-                        alt={product.name}
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
-                        width={8}
-                        height={8}
-                        loading="lazy"
-                      />
-                    </div>
-                    <span className="text-black">{product.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell>{product.brand}</TableCell>
-                <TableCell>{product.price}</TableCell>
-                <TableCell>{product.unit}</TableCell>
-                <TableCell>{product.qty}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-7">
-                      <AvatarImage src={getUserImage(product.createdBy)} alt={product.createdBy} loading="lazy" />
-                      <AvatarFallback className="text-xs">
-                        {product.createdBy
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-black">{product.createdBy}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Eye className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Edit className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={10} className="text-center py-8 text-slate-500">
+                  No Data Found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((product: Product) => (
+                <TableRow key={product.sku}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedProducts.includes(product.sku)}
+                      onCheckedChange={(checked) => handleSelectProduct(product.sku, !!checked)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{product.sku}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
+                        <Image
+                          src={getProductImage(product.sku)}
+                          alt={product.name}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                          width={8}
+                          height={8}
+                          loading="lazy"
+                        />
+                      </div>
+                      <span className="text-black">{product.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.brand}</TableCell>
+                  <TableCell>{product.price}</TableCell>
+                  <TableCell>{product.unit}</TableCell>
+                  <TableCell>{product.qty}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-7">
+                        <AvatarImage src={getUserImage(product.createdBy)} alt={product.createdBy} loading="lazy" />
+                        <AvatarFallback className="text-xs">
+                          {product.createdBy
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-black">{product.createdBy}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Eye className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
           <div className="flex items-center gap-2 text-sm w-full">
             <span>Row Per Page</span>
-            <Select defaultValue="10">
+            <Select value={itemsPerPage} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-16 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -266,42 +377,59 @@ export default function ProductsPage() {
           <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" className="border border-slate-300 rounded-full" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
+                <PaginationPrevious
                   href="#"
-                  isActive
-                  className="bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                >
-                  1
-                </PaginationLink>
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
+                />
               </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  if (totalPages <= 7) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, idx, arr) => {
+                  if (idx > 0 && arr[idx - 1] !== page - 1) {
+                    return (
+                      <PaginationItem key={`ellipsis-${page}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
               <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  3
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  4
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  15
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" className="border border-slate-300 rounded-full" />
+                <PaginationNext
+                  href="#"
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

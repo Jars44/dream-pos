@@ -16,7 +16,7 @@ export function Header() {
       <div className="relative ml-2 flex-1 max-w-2xs">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
         <Input placeholder="Search..." className="pl-9 pr-16" />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-black bg-zinc-2va00 px-1.5 py-0.5 rounded flex justify-center items-center w-10 h-6">
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-black bg-zinc-200 px-1.5 py-0.5 rounded flex justify-center items-center w-10 h-6">
           ⌘ K
         </span>
       </div>
@@ -56,7 +56,13 @@ export function Header() {
         <div className="h-8 w-px bg-slate-200"></div>
 
         <Button size="icon" className="relative bg-slate-100 hover:bg-slate-200">
-          <Image src="/images/usa.webp" alt="US" height={5} width={5} className="size-5 rounded-sm object-cover" />
+          <Image
+            src="/images/icons/usa.webp"
+            alt="US"
+            height={5}
+            width={5}
+            className="size-5 rounded-sm object-cover"
+          />
         </Button>
 
         <Button size="icon" className="bg-slate-100 hover:bg-slate-200 text-slate-700">
