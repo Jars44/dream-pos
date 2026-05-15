@@ -74,6 +74,10 @@ npm install
 # Start dev server (Turbopack)
 bun run dev
 
+# Atau dengan npm
+npm run dev
+
+
 # Buka browser ke http://localhost:3000
 ```
 
@@ -88,8 +92,15 @@ bun run dev
 # Build untuk production
 bun run build
 
+# Atau dengan npm
+npm run build
+
+
 # Start production server
 bun run start
+
+# Atau dengan npm
+npm run start
 
 # Akses di http://localhost:3000
 ```
@@ -105,15 +116,19 @@ DreamsPOS menggunakan **Vitest** + **React Testing Library** untuk testing unit 
 ```bash
 # Jalankan test runner interaktif (watch mode)
 bun run test
+npm run test
 
 # Jalankan tests sekali (CI mode)
 bun run test:run
+npm run test:run
 
 # Jalankan tests dengan UI (browser)
 bun run test:ui
+npm run test:ui
 
 # Generate coverage report
 bun run test:coverage
+npm run test:coverage
 ```
 
 Output coverage: **~75% statements** (lib & components), UI pages ~52-63% (belum full).
