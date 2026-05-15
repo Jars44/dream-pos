@@ -27,7 +27,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { productsData } from "@/lib/mock-data";
+import { useProductStore } from "@/store/useProductStore";
+import type { Product } from "@/store/useProductStore";
 
 const getProductImage = (sku: string): string => {
   const imageMap: Record<string, string> = {
@@ -62,6 +63,7 @@ const getUserImage = (name: string): string => {
 };
 
 export default function ProductsPage() {
+  const products = useProductStore((state) => state.products);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -72,7 +74,7 @@ export default function ProductsPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(productsData.map((p) => p.sku));
+      setSelectedProducts(products.map((p) => p.sku));
     } else {
       setSelectedProducts([]);
     }
@@ -95,7 +97,7 @@ export default function ProductsPage() {
   };
 
   const filteredAndSortedData = useMemo(() => {
-    let result = [...productsData];
+    let result = [...products];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -117,8 +119,8 @@ export default function ProductsPage() {
 
     if (sortConfig) {
       result.sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof typeof a];
-        const bValue = b[sortConfig.key as keyof typeof b];
+        const aValue = a[sortConfig.key as keyof Product];
+        const bValue = b[sortConfig.key as keyof Product];
 
         if (typeof aValue === "string" && typeof bValue === "string") {
           return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
@@ -131,7 +133,7 @@ export default function ProductsPage() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedBrand, sortConfig]);
+  }, [products, searchQuery, selectedCategory, selectedBrand, sortConfig]);
 
   const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
   const paginatedData = useMemo(() => {
@@ -189,9 +191,11 @@ export default function ProductsPage() {
           <Button size="icon" className="border-slate-300 bg-white hover:bg-slate-50 text-black">
             <ChevronUp className="size-4" />
           </Button>
-          <Button className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
-            <CirclePlus className="size-4 mr-1" />
-            Add Product
+          <Button asChild className="bg-[#FF9025] hover:bg-[#ff871e] text-white">
+            <Link href="/dashboard/inventory/create-product">
+              <CirclePlus className="size-4 mr-1" />
+              Add Product
+            </Link>
           </Button>
           <Button className="bg-[#092C4C] hover:bg-slate-800 text-white">
             <Download className="size-4 mr-1" />
@@ -260,7 +264,7 @@ export default function ProductsPage() {
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedProducts.length === productsData.length}
+                  checked={selectedProducts.length === products.length}
                   onCheckedChange={handleSelectAll}
                   className="bg-white"
                 />
@@ -291,7 +295,7 @@ export default function ProductsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedData.map((product) => (
+              paginatedData.map((product: Product) => (
                 <TableRow key={product.sku}>
                   <TableCell>
                     <Checkbox
