@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, Edit, Trash2, Search, RefreshCw, ArrowDownUp, CirclePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -72,10 +72,16 @@ const getCategoryImage = (name: string): string => {
 
 export default function SubCategoryPage() {
   const [selectedSubCategories, setSelectedSubCategories] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedSubCategories(subCategoriesData.map((sc) => sc.id));
+      setSelectedSubCategories(subCategoriesData.map((c) => c.id));
     } else {
       setSelectedSubCategories([]);
     }
@@ -87,6 +93,72 @@ export default function SubCategoryPage() {
     } else {
       setSelectedSubCategories(selectedSubCategories.filter((s) => s !== id));
     }
+  };
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...subCategoriesData];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((c) => c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query));
+    }
+
+    if (selectedCategory && selectedCategory !== "all") {
+      result = result.filter((c) => c.category.toLowerCase() === selectedCategory.toLowerCase());
+    }
+
+    if (selectedStatus && selectedStatus !== "all") {
+      result = result.filter((c) => c.status.toLowerCase() === selectedStatus.toLowerCase());
+    }
+
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [searchQuery, selectedCategory, selectedStatus, sortConfig]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * parseInt(itemsPerPage);
+    const end = start + parseInt(itemsPerPage);
+    return filteredAndSortedData.slice(start, end);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -132,34 +204,56 @@ export default function SubCategoryPage() {
         <div className="flex items-center justify-between px-2 my-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search" className="pl-9" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Select>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="computers">Computers</SelectItem>
-                <SelectItem value="electronics">Electronics</SelectItem>
-                <SelectItem value="shoe">Shoe</SelectItem>
-                <SelectItem value="furniture">Furniture</SelectItem>
-                <SelectItem value="bags">Bags</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Computers">Computers</SelectItem>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Shoe">Shoe</SelectItem>
+                <SelectItem value="Furniture">Furniture</SelectItem>
+                <SelectItem value="Bags">Bags</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select
+              value={selectedStatus}
+              onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         <Table className="border-b">
-          <TableHeader className="bg-slate-100">
+          <TableHeader className="bg-zinc-200/40">
             <TableRow className="border-b hover:bg-transparent">
               <TableHead className="w-12">
                 <Checkbox
@@ -172,7 +266,7 @@ export default function SubCategoryPage() {
               <TableHead className="font-semibold">Sub Category</TableHead>
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("code")}>
                   Category Code
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -185,57 +279,65 @@ export default function SubCategoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subCategoriesData.map((subCategory) => (
-              <TableRow key={subCategory.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedSubCategories.includes(subCategory.id)}
-                    onCheckedChange={(checked) => handleSelectSubCategory(subCategory.id, !!checked)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
-                    <Image
-                      src={getCategoryImage(subCategory.name)}
-                      alt={subCategory.name}
-                      className="w-8 h-8 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                      width={8}
-                      height={8}
-                      loading="lazy"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium text-black">{subCategory.name}</TableCell>
-                <TableCell>{subCategory.category}</TableCell>
-                <TableCell>{subCategory.code}</TableCell>
-                <TableCell>{subCategory.description}</TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                    Active
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Edit className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                  No Data Found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((subCategory) => (
+                <TableRow key={subCategory.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedSubCategories.includes(subCategory.id)}
+                      onCheckedChange={(checked) => handleSelectSubCategory(subCategory.id, !!checked)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
+                      <Image
+                        src={getCategoryImage(subCategory.name)}
+                        alt={subCategory.name}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                        width={8}
+                        height={8}
+                        loading="lazy"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-black">{subCategory.name}</TableCell>
+                  <TableCell>{subCategory.category}</TableCell>
+                  <TableCell>{subCategory.code}</TableCell>
+                  <TableCell>{subCategory.description}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-0.5 text-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      Active
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
           <div className="flex items-center gap-2 text-sm w-full">
             <span>Row Per Page</span>
-            <Select defaultValue="10">
+            <Select value={itemsPerPage} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-16 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -250,42 +352,59 @@ export default function SubCategoryPage() {
           <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" className="border border-slate-300 rounded-full" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
+                <PaginationPrevious
                   href="#"
-                  isActive
-                  className="bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                >
-                  1
-                </PaginationLink>
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
+                />
               </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  if (totalPages <= 7) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, idx, arr) => {
+                  if (idx > 0 && arr[idx - 1] !== page - 1) {
+                    return (
+                      <PaginationItem key={`ellipsis-${page}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
               <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  3
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  4
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  15
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" className="border border-slate-300 rounded-full" />
+                <PaginationNext
+                  href="#"
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

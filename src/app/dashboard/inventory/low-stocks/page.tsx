@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Edit, Trash2, Search, ArrowDownUp, RefreshCw, ChevronUp, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -35,7 +35,7 @@ const productsData = [
     category: "Computers",
     warehouse: "Lavish Warehouse",
     store: "Electro Mart",
-    qty: 20,
+    qty: 10,
     qtyAlert: 15,
   },
   {
@@ -44,7 +44,7 @@ const productsData = [
     category: "Electronics",
     warehouse: "Quaint Warehouse",
     store: "Quantum Gadgets",
-    qty: 25,
+    qty: 0,
     qtyAlert: 20,
   },
   {
@@ -53,7 +53,7 @@ const productsData = [
     category: "Shoe",
     warehouse: "Traditional Warehouse",
     store: "Prime Bazaar",
-    qty: 40,
+    qty: 30,
     qtyAlert: 35,
   },
   {
@@ -62,7 +62,7 @@ const productsData = [
     category: "Electronics",
     warehouse: "Cool Warehouse",
     store: "Gadget World",
-    qty: 50,
+    qty: 40,
     qtyAlert: 45,
   },
   {
@@ -71,7 +71,7 @@ const productsData = [
     category: "Electronics",
     warehouse: "Overflow Warehouse",
     store: "Volt Vault",
-    qty: 30,
+    qty: 0,
     qtyAlert: 25,
   },
   {
@@ -80,8 +80,8 @@ const productsData = [
     category: "Furniture",
     warehouse: "Nova Storage Hub",
     store: "Elite Retail",
-    qty: 10,
-    qtyAlert: 8,
+    qty: 8,
+    qtyAlert: 10,
   },
   {
     sku: "PT007",
@@ -89,7 +89,7 @@ const productsData = [
     category: "Bags",
     warehouse: "Retail Supply Hub",
     store: "Prime Mart",
-    qty: 70,
+    qty: 50,
     qtyAlert: 60,
   },
   {
@@ -98,7 +98,7 @@ const productsData = [
     category: "Phone",
     warehouse: "EdgeWare Solutions",
     store: "NeoTech Store",
-    qty: 35,
+    qty: 0,
     qtyAlert: 30,
   },
   {
@@ -107,7 +107,7 @@ const productsData = [
     category: "Furniture",
     warehouse: "North Zone Warehouse",
     store: "Urban Mart",
-    qty: 15,
+    qty: 9,
     qtyAlert: 10,
   },
   {
@@ -116,7 +116,7 @@ const productsData = [
     category: "Bags",
     warehouse: "Fulfillment Hub",
     store: "Travel Mart",
-    qty: 45,
+    qty: 0,
     qtyAlert: 40,
   },
 ];
@@ -140,6 +140,14 @@ const getProductImage = (sku: string): string => {
 export default function LowStocksPage() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [notifyEnabled, setNotifyEnabled] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedStore, setSelectedStore] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<"low" | "out">("low");
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -155,6 +163,89 @@ export default function LowStocksPage() {
     } else {
       setSelectedProducts(selectedProducts.filter((s) => s !== sku));
     }
+  };
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...productsData];
+
+    if (activeTab === "low") {
+      result = result.filter((p) => p.qty > 0 && p.qty <= p.qtyAlert);
+    } else {
+      result = result.filter((p) => p.qty === 0);
+    }
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.sku.toLowerCase().includes(query) ||
+          p.warehouse.toLowerCase().includes(query) ||
+          p.store.toLowerCase().includes(query),
+      );
+    }
+
+    if (selectedWarehouse && selectedWarehouse !== "all") {
+      result = result.filter((p) => p.warehouse.toLowerCase() === selectedWarehouse.toLowerCase());
+    }
+
+    if (selectedStore && selectedStore !== "all") {
+      result = result.filter((p) => p.store.toLowerCase() === selectedStore.toLowerCase());
+    }
+
+    if (selectedCategory && selectedCategory !== "all") {
+      result = result.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
+    }
+
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [searchQuery, selectedWarehouse, selectedStore, selectedCategory, sortConfig, activeTab]);
+
+  const totalPages = Math.ceil(filteredAndSortedData.length / parseInt(itemsPerPage));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * parseInt(itemsPerPage);
+    const end = start + parseInt(itemsPerPage);
+    return filteredAndSortedData.slice(start, end);
+  }, [filteredAndSortedData, currentPage, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePageClick = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -198,8 +289,24 @@ export default function LowStocksPage() {
 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4 rounded-lg border-slate-200 overflow-hidden">
-          <Button className="bg-[#FE9F43] hover:bg-[#FF8D29] text-white rounded-l-md border">Low Stocks</Button>
-          Out of Stock
+          <Button
+            className={`bg-[#FE9F43] hover:bg-[#FF8D29] text-white rounded-l-md border ${activeTab === "low" ? "bg-[#FE9F43]" : "bg-white text-black"}`}
+            onClick={() => {
+              setActiveTab("low");
+              setCurrentPage(1);
+            }}
+          >
+            Low Stocks
+          </Button>
+          <Button
+            className={`rounded-r-md border ${activeTab === "out" ? "bg-[#FE9F43] text-white hover:bg-[#FF8D29]" : "bg-white text-black hover:bg-slate-50"}`}
+            onClick={() => {
+              setActiveTab("out");
+              setCurrentPage(1);
+            }}
+          >
+            Out of Stock
+          </Button>
         </div>
         <div className="flex items-center justify-center gap-2 bg-white w-24 h-8 rounded-md border">
           <Switch
@@ -215,44 +322,73 @@ export default function LowStocksPage() {
         <div className="flex items-center justify-between px-2 my-4">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search" className="pl-9" />
+            <Input
+              placeholder="Search"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Select>
+            <Select
+              value={selectedWarehouse}
+              onValueChange={(value) => {
+                setSelectedWarehouse(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Warehouse" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lavish">Lavish Warehouse</SelectItem>
-                <SelectItem value="quaint">Quaint Warehouse</SelectItem>
-                <SelectItem value="traditional">Traditional Warehouse</SelectItem>
-                <SelectItem value="cool">Cool Warehouse</SelectItem>
-                <SelectItem value="overflow">Overflow Warehouse</SelectItem>
+                <SelectItem value="all">All Warehouses</SelectItem>
+                <SelectItem value="Lavish Warehouse">Lavish Warehouse</SelectItem>
+                <SelectItem value="Quaint Warehouse">Quaint Warehouse</SelectItem>
+                <SelectItem value="Traditional Warehouse">Traditional Warehouse</SelectItem>
+                <SelectItem value="Cool Warehouse">Cool Warehouse</SelectItem>
+                <SelectItem value="Overflow Warehouse">Overflow Warehouse</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select
+              value={selectedStore}
+              onValueChange={(value) => {
+                setSelectedStore(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Store" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="electro">Electro Mart</SelectItem>
-                <SelectItem value="quantum">Quantum Gadgets</SelectItem>
-                <SelectItem value="prime">Prime Bazaar</SelectItem>
-                <SelectItem value="gadget">Gadget World</SelectItem>
-                <SelectItem value="volt">Volt Vault</SelectItem>
+                <SelectItem value="all">All Stores</SelectItem>
+                <SelectItem value="Electro Mart">Electro Mart</SelectItem>
+                <SelectItem value="Quantum Gadgets">Quantum Gadgets</SelectItem>
+                <SelectItem value="Prime Bazaar">Prime Bazaar</SelectItem>
+                <SelectItem value="Gadget World">Gadget World</SelectItem>
+                <SelectItem value="Volt Vault">Volt Vault</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-40 text-black">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="computers">Computers</SelectItem>
-                <SelectItem value="electronics">Electronics</SelectItem>
-                <SelectItem value="shoe">Shoe</SelectItem>
-                <SelectItem value="furniture">Furniture</SelectItem>
-                <SelectItem value="bags">Bags</SelectItem>
-                <SelectItem value="phone">Phone</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Computers">Computers</SelectItem>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Shoe">Shoe</SelectItem>
+                <SelectItem value="Furniture">Furniture</SelectItem>
+                <SelectItem value="Bags">Bags</SelectItem>
+                <SelectItem value="Phone">Phone</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -274,7 +410,7 @@ export default function LowStocksPage() {
               </TableHead>
               <TableHead className="font-semibold">Category</TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("sku")}>
                   SKU
                   <div className="flex flex-col">
                     <ArrowDownUp className="size-3" />
@@ -282,63 +418,76 @@ export default function LowStocksPage() {
                 </div>
               </TableHead>
               <TableHead className="font-semibold">
-                <div className="flex items-center gap-1">Qty</div>
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => handleSort("qty")}>
+                  Qty
+                  <div className="flex flex-col">
+                    <ArrowDownUp className="size-3" />
+                  </div>
+                </div>
               </TableHead>
               <TableHead className="font-semibold">Qty Alert</TableHead>
               <TableHead className="w-24"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {productsData.map((product) => (
-              <TableRow key={product.sku}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedProducts.includes(product.sku)}
-                    onCheckedChange={(checked) => handleSelectProduct(product.sku, !!checked)}
-                  />
-                </TableCell>
-                <TableCell>{product.warehouse}</TableCell>
-                <TableCell>{product.store}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
-                      <Image
-                        src={getProductImage(product.sku)}
-                        alt={product.name}
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
-                        width={8}
-                        height={8}
-                        loading="lazy"
-                      />
-                    </div>
-                    <span className="text-black">{product.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell className="font-medium">{product.sku}</TableCell>
-                <TableCell>{product.qty}</TableCell>
-                <TableCell>{product.qtyAlert}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Edit className="size-4" />
-                    </Button>
-                    <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-8 text-slate-500">
+                  No Data Found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((product) => (
+                <TableRow key={product.sku}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedProducts.includes(product.sku)}
+                      onCheckedChange={(checked) => handleSelectProduct(product.sku, !!checked)}
+                    />
+                  </TableCell>
+                  <TableCell>{product.warehouse}</TableCell>
+                  <TableCell>{product.store}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center">
+                        <Image
+                          src={getProductImage(product.sku)}
+                          alt={product.name}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                          width={8}
+                          height={8}
+                          loading="lazy"
+                        />
+                      </div>
+                      <span className="text-black">{product.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell className="font-medium">{product.sku}</TableCell>
+                  <TableCell>{product.qty}</TableCell>
+                  <TableCell>{product.qtyAlert}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Edit className="size-4" />
+                      </Button>
+                      <Button size="icon" className="size-8 bg-white hover:bg-slate-50 border-slate-200 text-black">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between w-full my-4">
           <div className="flex items-center gap-2 text-sm w-full">
             <span>Row Per Page</span>
-            <Select defaultValue="10">
+            <Select value={itemsPerPage} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-16 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -353,42 +502,59 @@ export default function LowStocksPage() {
           <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" className="border border-slate-300 rounded-full" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
+                <PaginationPrevious
                   href="#"
-                  isActive
-                  className="bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
-                >
-                  1
-                </PaginationLink>
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePrevPage();
+                  }}
+                />
               </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  if (totalPages <= 7) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, idx, arr) => {
+                  if (idx > 0 && arr[idx - 1] !== page - 1) {
+                    return (
+                      <PaginationItem key={`ellipsis-${page}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        className={
+                          page === currentPage
+                            ? "bg-primary text-white hover:text-white hover:bg-orange-[#FF8D29] rounded-full"
+                            : "border border-slate-300 rounded-full"
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageClick(page);
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
               <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  3
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  4
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" className="border border-slate-300 rounded-full">
-                  15
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" className="border border-slate-300 rounded-full" />
+                <PaginationNext
+                  href="#"
+                  className="border border-slate-300 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNextPage();
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
